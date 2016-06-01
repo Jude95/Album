@@ -1,0 +1,99 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "com.jude.album"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {//配置java1.8环境
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'META-INF/maven/com.squareup.okio/okio/pom.xml'
+        exclude 'META-INF/maven/com.squareup.okio/okio/pom.properties'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile 'com.android.support:cardview-v7:23.4.0'
+
+    //Image
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'jp.wasabeef:glide-transformations:2.0.1'
+    compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.3.0'
+    compile 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
+    //Net
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.0.1'
+    compile 'com.qiniu:qiniu-android-sdk:7.0.1'
+    //Rx
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    compile('com.tbruyelle.rxpermissions:rxpermissions:0.7.0@aar') {
+        exclude module: 'rxbinding'
+    }
+    //UI
+    compile 'com.pnikosis:materialish-progress:1.7'
+    compile 'com.afollestad.material-dialogs:core:0.8.5.9'
+    compile 'com.github.arimorty:floatingsearchview:2.0.1'
+
+    //Dagger
+    compile 'com.google.dagger:dagger:2.4'
+    apt 'com.google.dagger:dagger-compiler:2.4'
+
+    //butterknife
+    compile 'com.jakewharton:butterknife:8.0.1'
+    apt 'com.jakewharton:butterknife-compiler:8.0.1'
+
+    //Jude Family
+    compile('com.jude:beam:2.9.1') {
+        exclude module: 'easyrecyclerview'
+        exclude module: 'rxandroid'
+    }
+    compile 'com.jude:utils:1.1.3'
+    compile 'com.jude:rollviewpager:1.3.1'
+    compile 'com.jude:tagview:2.1.4'
+    compile 'com.jude:fitsystemwindowlayout:2.1.4'
+    compile 'com.jude:swipebackhelper:3.1.0'
+    compile 'com.jude:easyrecyclerview:3.5.8'
+
+    //Debug
+    compile 'com.facebook.stetho:stetho:1.3.0'
+    compile 'com.facebook.stetho:stetho-okhttp3:1.3.0'
+    compile 'com.github.romainguy:ViewServer:master'
+    //Third
+    compile 'com.umeng.analytics:analytics:latest.integration'
+}
