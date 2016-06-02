@@ -60,7 +60,7 @@ public class PictureFragment extends Fragment {
     }
 
 
-    private class InfoViewHolder {
+    public class InfoViewHolder {
 
         @BindView(R.id.tv_name)
         TextView tvName;
