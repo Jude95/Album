@@ -8,6 +8,7 @@ import com.jude.album.BuildConfig;
 import com.jude.beam.bijection.ActivityLifeCycleDelegate;
 import com.jude.swipbackhelper.SwipeBackHelper;
 import com.jude.utils.JActivityManager;
+import com.jude.utils.JUtils;
 import com.umeng.analytics.MobclickAgent;
 
 /**
@@ -25,6 +26,7 @@ public class ActivityDelegate extends ActivityLifeCycleDelegate {
         SwipeBackHelper.onCreate(getActivity());
         JActivityManager.getInstance().pushActivity(getActivity());
         if (BuildConfig.DEBUG) ViewServer.get(getActivity()).addWindow(getActivity());
+        JUtils.Log(getActivity().getClass().getSimpleName()+" onCreate");
     }
 
     @Override
@@ -47,6 +49,7 @@ public class ActivityDelegate extends ActivityLifeCycleDelegate {
         SwipeBackHelper.onDestroy(getActivity());
         JActivityManager.getInstance().popActivity(getActivity());
         if (BuildConfig.DEBUG) ViewServer.get(getActivity()).removeWindow(getActivity());
+        JUtils.Log(getActivity().getClass().getSimpleName()+" onDestroy");
 
     }
 

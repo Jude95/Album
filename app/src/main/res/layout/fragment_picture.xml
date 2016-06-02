@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:padding_status="false"
+    android:background="@color/black">
+
+    <com.pnikosis.materialishprogress.ProgressWheel
+        android:id="@+id/wheel"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        app:matProg_barColor="#5588FF"
+        app:matProg_fillRadius="true"
+        app:matProg_progressIndeterminate="true"
+        android:layout_gravity="center" />
+
+    <uk.co.senab.photoview.PhotoView
+        android:id="@+id/photoview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="8dp"
+        app:margin_status="true"
+        android:src="@mipmap/back"/>
+
+</com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout>

@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
-
+apply plugin: 'me.tatarka.retrolambda'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -11,6 +11,9 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        jackOptions{
+            enabled false
+        }
     }
     buildTypes {
         release {
@@ -23,6 +26,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     dexOptions {
+        incremental = true;
         javaMaxHeapSize "4g"
     }
     packagingOptions {
@@ -69,6 +73,7 @@ dependencies {
     compile 'com.pnikosis:materialish-progress:1.7'
     compile 'com.afollestad.material-dialogs:core:0.8.5.9'
     compile 'com.github.arimorty:floatingsearchview:2.0.1'
+    compile 'com.github.chrisbanes:PhotoView:1.2.6'
 
     //Dagger
     compile 'com.google.dagger:dagger:2.4'

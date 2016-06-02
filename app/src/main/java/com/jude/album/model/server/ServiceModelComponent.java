@@ -2,6 +2,7 @@ package com.jude.album.model.server;
 
 
 import com.jude.album.app.StethoOkHttpGlideModule;
+import com.jude.album.model.ImageModel;
 
 import javax.inject.Singleton;
 
@@ -15,7 +16,7 @@ import dagger.Component;
 public interface ServiceModelComponent {
 //    void inject(AccountModel model);
 //    void inject(DataModel model);
-//    void inject(ImageModel model);
+    void inject(ImageModel model);
 //    void inject(ManagerModel model);
     void inject(StethoOkHttpGlideModule module);
 }

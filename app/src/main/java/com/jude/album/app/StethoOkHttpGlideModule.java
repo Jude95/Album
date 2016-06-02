@@ -7,6 +7,7 @@ import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.GlideModule;
+import com.jude.album.model.server.DaggerServiceModelComponent;
 
 import java.io.InputStream;
 
@@ -23,7 +24,7 @@ public class StethoOkHttpGlideModule  implements GlideModule {
 
     @Override
     public void registerComponents(Context contt, Glide glide) {
-        //DaggerServiceModelComponent.builder().build().inject(this);
+        DaggerServiceModelComponent.builder().build().inject(this);
         glide.register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
     }
 }
