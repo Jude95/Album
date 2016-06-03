@@ -1,8 +1,5 @@
 package com.jude.album.model.server;
 
-import android.app.Activity;
-
-import com.jude.utils.JActivityManager;
 import com.jude.utils.JUtils;
 
 import org.json.JSONException;
@@ -79,7 +76,7 @@ public class ErrorTransform<T> implements Observable.Transformer<T, T> {
         }
 
         private void authFailure(){
-            Activity activity = JActivityManager.getInstance().currentActivity();
+//            Activity activity = JActivityManager.getInstance().currentActivity();
 //            if (activity!=null&&
 //                    !(activity instanceof LauncherActivity)&&
 //                    !(activity instanceof LoginActivity)){

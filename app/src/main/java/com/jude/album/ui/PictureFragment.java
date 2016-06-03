@@ -1,12 +1,16 @@
 package com.jude.album.ui;
 
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -14,6 +18,7 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
 import com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout;
+import com.jude.fitsystemwindowlayout.Utils;
 import com.jude.utils.JUtils;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
@@ -80,15 +85,42 @@ public class PictureFragment extends Fragment {
         TextView tvSize;
         @BindView(R.id.tv_date)
         TextView tvDate;
+        @BindView(R.id.fab_expand)
+        FloatingActionButton fabExpand;
+        @BindView(R.id.navigation_stub)
+        View navigationStub;
 
         View mInfoView;
+        int shirkY = 0, expandY = 0;
+        ValueAnimator mExpandAnimator;
+        boolean isShirk = true;
+
+
 
         public void onCreateInfoView(FitSystemWindowsFrameLayout parent) {
-            mInfoView = LayoutInflater.from(getContext()).inflate(R.layout.view_picture_detail, null);
+            mInfoView = LayoutInflater.from(getContext()).inflate(R.layout.view_picture_detail, parent, false);
             ButterKnife.bind(this, mInfoView);
-            int top = JUtils.getScreenHeightWithStatusBar()-JUtils.dip2px(56);
-            mInfoView.setPadding(0,top,0,0);
             parent.addView(mInfoView);
+            if (Utils.hasSoftKeys(getContext())) {
+                navigationStub.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,JUtils.getNavigationBarHeight()));
+            }
+            mInfoView.post(() -> {
+                shirkY = JUtils.getScreenHeightWithStatusBar() - JUtils.dip2px(56);
+                expandY = JUtils.getScreenHeightWithStatusBar() + JUtils.getNavigationBarHeight() - mInfoView.getHeight();
+                initAnimation();
+                mInfoView.setPadding(0, shirkY, 0, 0);
+                mInfoView.setVisibility(View.VISIBLE);
+            });
+            fabExpand.setOnClickListener(v -> {
+                if (isShirk) {
+                    mExpandAnimator.start();
+                    fabExpand.setImageResource(R.mipmap.down);
+                } else {
+                    mExpandAnimator.reverse();
+                    fabExpand.setImageResource(R.mipmap.up);
+                }
+                isShirk = !isShirk;
+            });
         }
 
         public void onBindInfoView(Picture picture) {
@@ -99,6 +131,14 @@ public class PictureFragment extends Fragment {
             tvSize.setText(picture.getWidth() + "x" + picture.getHeight());
         }
 
+        public void initAnimation() {
+            mExpandAnimator = ValueAnimator.ofInt(shirkY, expandY);
+            mExpandAnimator.setDuration(200);
+            mExpandAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            mExpandAnimator.addUpdateListener(animation -> {
+                mInfoView.setPadding(0, (Integer) animation.getAnimatedValue(), 0, 0);
+            });
+        }
 
     }
 }

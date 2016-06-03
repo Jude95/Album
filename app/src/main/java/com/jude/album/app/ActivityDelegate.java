@@ -24,7 +24,6 @@ public class ActivityDelegate extends ActivityLifeCycleDelegate {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SwipeBackHelper.onCreate(getActivity());
-        JActivityManager.getInstance().pushActivity(getActivity());
         if (BuildConfig.DEBUG) ViewServer.get(getActivity()).addWindow(getActivity());
         JUtils.Log(getActivity().getClass().getSimpleName()+" onCreate");
     }
@@ -47,7 +46,6 @@ public class ActivityDelegate extends ActivityLifeCycleDelegate {
     protected void onDestroy() {
         super.onDestroy();
         SwipeBackHelper.onDestroy(getActivity());
-        JActivityManager.getInstance().popActivity(getActivity());
         if (BuildConfig.DEBUG) ViewServer.get(getActivity()).removeWindow(getActivity());
         JUtils.Log(getActivity().getClass().getSimpleName()+" onDestroy");
 
