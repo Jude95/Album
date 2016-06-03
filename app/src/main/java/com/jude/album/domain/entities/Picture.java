@@ -19,6 +19,8 @@ public class Picture implements Parcelable {
     String tag;
     @SerializedName("author_id")
     String authorId;
+    @SerializedName("author_avatar")
+    String authorAvatar;
     @SerializedName("watch_count")
     int watchCount;
     @SerializedName("collection_count")
@@ -28,8 +30,7 @@ public class Picture implements Parcelable {
     @SerializedName("create_time")
     long createTime;
 
-    public Picture(String albumId, String id, String name, String intro, int width, int height, String src, String tag, String authorId, int watchCount, int collectionCount, long createTime) {
-        this.albumId = albumId;
+    public Picture(String id, String name, String intro, int width, int height, String src, String tag, String authorId, String authorAvatar, int watchCount, int collectionCount, String albumId, long createTime) {
         this.id = id;
         this.name = name;
         this.intro = intro;
@@ -38,8 +39,10 @@ public class Picture implements Parcelable {
         this.src = src;
         this.tag = tag;
         this.authorId = authorId;
+        this.authorAvatar = authorAvatar;
         this.watchCount = watchCount;
         this.collectionCount = collectionCount;
+        this.albumId = albumId;
         this.createTime = createTime;
     }
 
@@ -139,6 +142,15 @@ public class Picture implements Parcelable {
         this.width = width;
     }
 
+    public String getAuthorAvatar() {
+        return authorAvatar;
+    }
+
+    public void setAuthorAvatar(String authorAvatar) {
+        this.authorAvatar = authorAvatar;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -154,13 +166,11 @@ public class Picture implements Parcelable {
         dest.writeString(this.src);
         dest.writeString(this.tag);
         dest.writeString(this.authorId);
+        dest.writeString(this.authorAvatar);
         dest.writeInt(this.watchCount);
         dest.writeInt(this.collectionCount);
         dest.writeString(this.albumId);
         dest.writeLong(this.createTime);
-    }
-
-    public Picture() {
     }
 
     protected Picture(Parcel in) {
@@ -172,6 +182,7 @@ public class Picture implements Parcelable {
         this.src = in.readString();
         this.tag = in.readString();
         this.authorId = in.readString();
+        this.authorAvatar = in.readString();
         this.watchCount = in.readInt();
         this.collectionCount = in.readInt();
         this.albumId = in.readString();

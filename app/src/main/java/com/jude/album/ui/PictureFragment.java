@@ -13,14 +13,13 @@ import com.bumptech.glide.Glide;
 import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
+import com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout;
 import com.jude.utils.JUtils;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import uk.co.senab.photoview.PhotoView;
-
-import static com.jude.album.R.id.btn_back;
 
 /**
  * Created by zhuchenxi on 16/6/2.
@@ -32,8 +31,12 @@ public class PictureFragment extends Fragment {
     ProgressWheel wheel;
     @BindView(R.id.photoview)
     PhotoView photoview;
-    @BindView(btn_back)
+    @BindView(R.id.btn_back)
     ImageView btnBack;
+    @BindView(R.id.container)
+    FitSystemWindowsFrameLayout container;
+
+    InfoViewHolder mInfoViewHolder;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +60,9 @@ public class PictureFragment extends Fragment {
         Glide.with(getContext())
                 .load(mPicture.getSrc())
                 .into(photoview);
+        mInfoViewHolder = new InfoViewHolder();
+        mInfoViewHolder.onCreateInfoView(container);
+        mInfoViewHolder.onBindInfoView(mPicture);
     }
 
 
@@ -68,8 +74,6 @@ public class PictureFragment extends Fragment {
         TextView tvWatch;
         @BindView(R.id.tv_collect)
         TextView tvCollect;
-        @BindView(R.id.img_avatar)
-        ImageView imgAvatar;
         @BindView(R.id.tv_intro)
         TextView tvIntro;
         @BindView(R.id.tv_size)
@@ -77,9 +81,24 @@ public class PictureFragment extends Fragment {
         @BindView(R.id.tv_date)
         TextView tvDate;
 
-        public void createInfoView() {
-            View infoView = LayoutInflater.from(getContext()).inflate(R.layout.view_picture_detail, null);
-            ButterKnife.bind(this,infoView);
+        View mInfoView;
+
+        public void onCreateInfoView(FitSystemWindowsFrameLayout parent) {
+            mInfoView = LayoutInflater.from(getContext()).inflate(R.layout.view_picture_detail, null);
+            ButterKnife.bind(this, mInfoView);
+            int top = JUtils.getScreenHeightWithStatusBar()-JUtils.dip2px(56);
+            mInfoView.setPadding(0,top,0,0);
+            parent.addView(mInfoView);
         }
+
+        public void onBindInfoView(Picture picture) {
+            tvName.setText(picture.getName());
+            tvWatch.setText(picture.getWatchCount() + "");
+            tvCollect.setText(picture.getCollectionCount() + "");
+            tvIntro.setText(picture.getIntro());
+            tvSize.setText(picture.getWidth() + "x" + picture.getHeight());
+        }
+
+
     }
 }
