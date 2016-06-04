@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import com.jude.album.R;
@@ -47,6 +48,11 @@ public class PictureActivity extends BeamBaseActivity {
 
         mAdapter.setPictures(pictures);
         mViewPager.setCurrentItem(index);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return super.dispatchTouchEvent(ev);
     }
 
     class PictureFragmentAdapter extends FragmentStatePagerAdapter{

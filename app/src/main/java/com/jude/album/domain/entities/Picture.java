@@ -21,6 +21,10 @@ public class Picture implements Parcelable {
     String authorId;
     @SerializedName("author_avatar")
     String authorAvatar;
+    @SerializedName("author_name")
+    String authorName;
+    @SerializedName("author_picture_count")
+    int authorPictureCount;
     @SerializedName("watch_count")
     int watchCount;
     @SerializedName("collection_count")
@@ -30,7 +34,7 @@ public class Picture implements Parcelable {
     @SerializedName("create_time")
     long createTime;
 
-    public Picture(String id, String name, String intro, int width, int height, String src, String tag, String authorId, String authorAvatar, int watchCount, int collectionCount, String albumId, long createTime) {
+    public Picture(String id, String name, String intro, int width, int height, String src, String tag, String authorId, String authorAvatar, int watchCount, int collectionCount, String albumId, long createTime,String authorName) {
         this.id = id;
         this.name = name;
         this.intro = intro;
@@ -44,6 +48,7 @@ public class Picture implements Parcelable {
         this.collectionCount = collectionCount;
         this.albumId = albumId;
         this.createTime = createTime;
+        this.authorName = authorName;
     }
 
     public String getAlbumId() {
@@ -150,6 +155,22 @@ public class Picture implements Parcelable {
         this.authorAvatar = authorAvatar;
     }
 
+    public int getAuthorPictureCount() {
+        return authorPictureCount;
+    }
+
+    public void setAuthorPictureCount(int authorPictureCount) {
+        this.authorPictureCount = authorPictureCount;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
 
     @Override
     public int describeContents() {
@@ -167,6 +188,8 @@ public class Picture implements Parcelable {
         dest.writeString(this.tag);
         dest.writeString(this.authorId);
         dest.writeString(this.authorAvatar);
+        dest.writeString(this.authorName);
+        dest.writeInt(this.authorPictureCount);
         dest.writeInt(this.watchCount);
         dest.writeInt(this.collectionCount);
         dest.writeString(this.albumId);
@@ -183,6 +206,8 @@ public class Picture implements Parcelable {
         this.tag = in.readString();
         this.authorId = in.readString();
         this.authorAvatar = in.readString();
+        this.authorName = in.readString();
+        this.authorPictureCount = in.readInt();
         this.watchCount = in.readInt();
         this.collectionCount = in.readInt();
         this.albumId = in.readString();

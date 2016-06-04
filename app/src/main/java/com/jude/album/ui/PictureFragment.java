@@ -3,27 +3,26 @@ package com.jude.album.ui;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
-import com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout;
-import com.jude.fitsystemwindowlayout.Utils;
+import com.jude.album.model.ImageModel;
+import com.jude.utils.JTimeTransform;
 import com.jude.utils.JUtils;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import uk.co.senab.photoview.PhotoView;
 
 /**
@@ -36,10 +35,8 @@ public class PictureFragment extends Fragment {
     ProgressWheel wheel;
     @BindView(R.id.photoview)
     PhotoView photoview;
-    @BindView(R.id.btn_back)
-    ImageView btnBack;
     @BindView(R.id.container)
-    FitSystemWindowsFrameLayout container;
+    FrameLayout container;
 
     InfoViewHolder mInfoViewHolder;
 
@@ -61,7 +58,6 @@ public class PictureFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        RxView.clicks(btnBack).subscribe(aVoid -> getActivity().finish());
         Glide.with(getContext())
                 .load(mPicture.getSrc())
                 .into(photoview);
@@ -85,10 +81,14 @@ public class PictureFragment extends Fragment {
         TextView tvSize;
         @BindView(R.id.tv_date)
         TextView tvDate;
-        @BindView(R.id.fab_expand)
-        FloatingActionButton fabExpand;
-        @BindView(R.id.navigation_stub)
-        View navigationStub;
+        @BindView(R.id.img_avatar)
+        ImageView imgAvatar;
+        @BindView(R.id.tv_author_name)
+        TextView tvAuthorName;
+        @BindView(R.id.tv_author_picture_count)
+        TextView tvAuthorPictureCount;
+        @BindView(R.id.img_expand)
+        ImageView imgExpand;
 
         View mInfoView;
         int shirkY = 0, expandY = 0;
@@ -96,28 +96,26 @@ public class PictureFragment extends Fragment {
         boolean isShirk = true;
 
 
-
-        public void onCreateInfoView(FitSystemWindowsFrameLayout parent) {
+        public void onCreateInfoView(FrameLayout parent) {
             mInfoView = LayoutInflater.from(getContext()).inflate(R.layout.view_picture_detail, parent, false);
             ButterKnife.bind(this, mInfoView);
             parent.addView(mInfoView);
-            if (Utils.hasSoftKeys(getContext())) {
-                navigationStub.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,JUtils.getNavigationBarHeight()));
-            }
             mInfoView.post(() -> {
-                shirkY = JUtils.getScreenHeightWithStatusBar() - JUtils.dip2px(56);
-                expandY = JUtils.getScreenHeightWithStatusBar() + JUtils.getNavigationBarHeight() - mInfoView.getHeight();
+                shirkY = JUtils.getScreenHeightWithStatusBar() - JUtils.dip2px(28);
+                expandY = JUtils.getScreenHeightWithStatusBar()  - mInfoView.getHeight();
                 initAnimation();
-                mInfoView.setPadding(0, shirkY, 0, 0);
+                FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mInfoView.getLayoutParams();
+                layoutParams.topMargin = shirkY;
+                mInfoView.setLayoutParams(layoutParams);
                 mInfoView.setVisibility(View.VISIBLE);
             });
-            fabExpand.setOnClickListener(v -> {
+            imgExpand.setOnClickListener(v -> {
                 if (isShirk) {
                     mExpandAnimator.start();
-                    fabExpand.setImageResource(R.mipmap.down);
+                    imgExpand.setImageResource(R.mipmap.down);
                 } else {
                     mExpandAnimator.reverse();
-                    fabExpand.setImageResource(R.mipmap.up);
+                    imgExpand.setImageResource(R.mipmap.up);
                 }
                 isShirk = !isShirk;
             });
@@ -128,7 +126,14 @@ public class PictureFragment extends Fragment {
             tvWatch.setText(picture.getWatchCount() + "");
             tvCollect.setText(picture.getCollectionCount() + "");
             tvIntro.setText(picture.getIntro());
+            tvDate.setText(new JTimeTransform(picture.getCreateTime()).toString("yyyy年MM月dd日 hh:mm:ss"));
             tvSize.setText(picture.getWidth() + "x" + picture.getHeight());
+            Glide.with(getContext())
+                    .load(ImageModel.getSmallImage(picture.getAuthorAvatar()))
+                    .bitmapTransform(new CropCircleTransformation(getContext()))
+                    .into(imgAvatar);
+            tvAuthorName.setText(picture.getAuthorName());
+            tvAuthorPictureCount.setText(picture.getAuthorPictureCount() + "张作品");
         }
 
         public void initAnimation() {
@@ -136,7 +141,9 @@ public class PictureFragment extends Fragment {
             mExpandAnimator.setDuration(200);
             mExpandAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
             mExpandAnimator.addUpdateListener(animation -> {
-                mInfoView.setPadding(0, (Integer) animation.getAnimatedValue(), 0, 0);
+                FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mInfoView.getLayoutParams();
+                layoutParams.topMargin = (Integer) animation.getAnimatedValue();
+                mInfoView.setLayoutParams(layoutParams);
             });
         }
 

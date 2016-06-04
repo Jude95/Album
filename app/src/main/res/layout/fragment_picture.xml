@@ -5,8 +5,9 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:padding_status="false"
-    android:background="@color/black">
+    android:background="@color/black"
+    app:padding_status="false">
+
 
     <com.pnikosis.materialishprogress.ProgressWheel
         android:id="@+id/wheel"
@@ -21,16 +22,6 @@
         android:id="@+id/photoview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="56dp"
-        app:margin_navigation="true"/>
-
-    <ImageView
-        android:id="@+id/btn_back"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:padding="8dp"
-        app:margin_status="true"
-        android:visibility="gone"
-        android:src="@mipmap/back"/>
+        android:layout_marginBottom="28dp" />
 
 </com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout>

@@ -1,13 +1,12 @@
 package com.jude.album.app;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import com.android.debug.hv.ViewServer;
 import com.jude.album.BuildConfig;
 import com.jude.beam.bijection.ActivityLifeCycleDelegate;
+import com.jude.beam.bijection.BeamAppCompatActivity;
 import com.jude.swipbackhelper.SwipeBackHelper;
-import com.jude.utils.JActivityManager;
 import com.jude.utils.JUtils;
 import com.umeng.analytics.MobclickAgent;
 
@@ -16,7 +15,8 @@ import com.umeng.analytics.MobclickAgent;
  */
 public class ActivityDelegate extends ActivityLifeCycleDelegate {
 
-    public ActivityDelegate(Activity act) {
+
+    public ActivityDelegate(BeamAppCompatActivity act) {
         super(act);
     }
 

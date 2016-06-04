@@ -4,4 +4,8 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
+    <style name="AppTheme.NoNavigation" parent="AppTheme.Base">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+    </style>
 </resources>

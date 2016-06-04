@@ -84,7 +84,7 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
 
     //Jude Family
-    compile('com.jude:beam:2.9.1') {
+    compile('com.jude:beam:2.9.3') {
         exclude module: 'easyrecyclerview'
         exclude module: 'rxandroid'
     }

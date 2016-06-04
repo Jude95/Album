@@ -21,7 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.PictureActivity"/>
+        <activity android:name=".ui.PictureActivity"
+            android:theme="@style/AppTheme.NoNavigation"/>
     </application>
 
 </manifest>

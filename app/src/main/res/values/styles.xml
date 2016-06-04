@@ -10,9 +10,13 @@
         <item name="android:windowAnimationStyle">@style/SlideRightAnimation</item>
     </style>
     <style name="AppTheme" parent="AppTheme.Base"></style>
+
+    <style name="AppTheme.NoNavigation" parent="AppTheme.Base"/>
+
     <style name="AppTheme.NoSwipe" parent="AppTheme">
         <item name="android:windowIsTranslucent">false</item>
     </style>
+
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorAccent">@color/orange</item>
