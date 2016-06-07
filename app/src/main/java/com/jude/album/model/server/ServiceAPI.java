@@ -22,7 +22,7 @@ import rx.Observable;
 public interface ServiceAPI {
     String SERVER_ADDRESS = "http://115.29.107.20/v1/";
 
-    @GET("qiniu.php")
+    @GET("config/qiniu.php")
     Observable<Token> getQiniuToken();
 
     @POST("users/checkAccountExist.php")
@@ -60,8 +60,10 @@ public interface ServiceAPI {
     Observable<List<Album>> getAlbums(
             @Field("id") String id);
 
-    @GET("users/pictures.php")
-    Observable<List<Picture>> getPictures();
+    @POST("users/pictures.php")
+    @FormUrlEncoded
+    Observable<List<Picture>> getPictures(
+            @Field("id") String id);
 
 
     @POST("pictures/uploadPicture.php")

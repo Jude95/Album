@@ -37,7 +37,7 @@ public class ImageModel extends AbsModel {
     public static ImageModel getInstance() {
         return getInstance(ImageModel.class);
     }
-    public static final String ADDRESS = "http://7xn814.com1.z0.glb.clouddn.com/";
+    public static final String ADDRESS = "http://o84n5syhk.bkt.clouddn.com/";
     public static final String QINIU = "qiniucdn.com";
     private UploadManager mUploadManager;
 

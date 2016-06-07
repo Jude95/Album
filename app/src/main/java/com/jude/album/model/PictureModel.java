@@ -54,8 +54,8 @@ public class PictureModel extends AbsModel {
     }
 
 
-    public Observable<List<Picture>> getMyPictures(){
-        return mServiceAPI.getPictures()
+    public Observable<List<Picture>> getMyPictures(String id){
+        return mServiceAPI.getPictures(id)
                 .compose(new SchedulerTransform<>());
     }
 

@@ -23,6 +23,7 @@ import com.jude.album.model.AccountModel;
 import com.jude.album.model.ImageModel;
 import com.jude.album.presenter.MainPresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
+import com.jude.album.utils.SpacesItemDecoration;
 import com.jude.beam.bijection.RequiresPresenter;
 import com.jude.beam.expansion.list.BeamListActivity;
 import com.jude.easyrecyclerview.adapter.BaseViewHolder;
@@ -30,6 +31,7 @@ import com.jude.easyrecyclerview.adapter.RecyclerArrayAdapter;
 import com.jude.rollviewpager.RollPagerView;
 import com.jude.rollviewpager.adapter.LoopPagerAdapter;
 import com.jude.swipbackhelper.SwipeBackHelper;
+import com.jude.utils.JUtils;
 
 import java.util.List;
 
@@ -100,6 +102,7 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
 
             }
         });
+        getListView().addItemDecoration(new SpacesItemDecoration(JUtils.dip2px(4)));
         getListView().setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
     }
 

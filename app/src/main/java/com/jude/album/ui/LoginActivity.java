@@ -45,7 +45,6 @@ public class LoginActivity extends BeamBaseActivity {
                 .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.AUTH_TOAST))
                 .subscribe(a ->{
                     Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this,MainActivity.class));
                     finish();
                 }));
         register.setOnClickListener(v -> startActivityForResult(new Intent(LoginActivity.this, RegisterActivity.class),REQUEST_LOGIN));

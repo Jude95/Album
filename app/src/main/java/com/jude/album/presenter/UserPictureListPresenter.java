@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.model.AccountModel;
 import com.jude.album.model.PictureModel;
 import com.jude.album.ui.UserPictureListActivity;
 import com.jude.beam.expansion.list.BeamListActivityPresenter;
@@ -21,7 +22,7 @@ public class UserPictureListPresenter extends BeamListActivityPresenter<UserPict
 
     @Override
     public void onRefresh() {
-        PictureModel.getInstance().getMyPictures()
+        PictureModel.getInstance().getMyPictures(AccountModel.getInstance().getCurrentAccount().getId())
                 .unsafeSubscribe(getRefreshSubscriber());
     }
 }

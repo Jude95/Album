@@ -25,7 +25,7 @@ public class HeaderInterceptors implements Interceptor {
         Request request = chain.request();
         if (!TextUtils.isEmpty(TOKEN)&&!TextUtils.isEmpty(UID))
             request = request.newBuilder()
-                .addHeader("uid", UID)
+                .addHeader("UID", UID)
                 .addHeader("token", TOKEN)
                 .build();
         return chain.proceed(request);
