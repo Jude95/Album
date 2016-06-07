@@ -23,4 +23,8 @@
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue900</item>
     </style>
+
+    <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@mipmap/bg_launch</item>
+    </style>
 </resources>

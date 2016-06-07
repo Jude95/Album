@@ -6,39 +6,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:openDrawer="start">
-    <android.support.design.widget.CoordinatorLayout
+    <com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:padding_status="false"
         android:fitsSystemWindows="false">
 
         <com.jude.easyrecyclerview.EasyRecyclerView
             android:id="@id/recycler"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:padding_navigation="true"/>
+            android:layout_height="match_parent"/>
 
-        <com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.arlib.floatingsearchview.FloatingSearchView
+            android:id="@+id/floating_search_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:padding_status="false">
-            <com.arlib.floatingsearchview.FloatingSearchView
-                android:id="@+id/floating_search_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:margin_status="true"
-                app:floatingSearch_backgroundColor="#dfff"
-                app:floatingSearch_searchBarMarginLeft="@dimen/search_view_inset"
-                app:floatingSearch_searchBarMarginRight="@dimen/search_view_inset"
-                app:floatingSearch_searchHint="拾影"
-                app:floatingSearch_suggestionsListAnimDuration="250"
-                app:floatingSearch_showSearchKey="false"
-                app:floatingSearch_leftActionMode="showHamburger"
-                app:floatingSearch_menu="@menu/main"/>
-        </com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout>
-
-    </android.support.design.widget.CoordinatorLayout>
+            android:layout_height="match_parent"
+            app:margin_status="true"
+            app:floatingSearch_backgroundColor="#dfff"
+            app:floatingSearch_searchBarMarginLeft="@dimen/search_view_inset"
+            app:floatingSearch_searchBarMarginRight="@dimen/search_view_inset"
+            app:floatingSearch_searchHint="拾影"
+            app:floatingSearch_suggestionsListAnimDuration="250"
+            app:floatingSearch_showSearchKey="false"
+            app:floatingSearch_leftActionMode="showHamburger"
+            app:floatingSearch_menu="@menu/main"/>
+    </com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout>
 
 
 

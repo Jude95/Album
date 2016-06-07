@@ -1,22 +1,17 @@
 package com.jude.album.model;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 
-import com.jude.album.domain.Dir;
 import com.jude.album.model.server.DaggerServiceModelComponent;
 import com.jude.album.model.server.SchedulerTransform;
 import com.jude.album.model.server.ServiceAPI;
 import com.jude.beam.model.AbsModel;
-import com.jude.utils.JFileManager;
 import com.jude.utils.JUtils;
+import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
+import com.qiniu.android.storage.UploadOptions;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -29,9 +24,6 @@ import rx.Subscriber;
  */
 public class ImageModel extends AbsModel {
     public static String UID = "";
-    public static final int IMAGE_WIDTH_MAX=480;
-    public static final int IMAGE_HEIGHT_MIN=800;
-    public static final int COMPRESS_LEVEL = 60;
 
     public static final int IMAGE_SIZE_SMALL = 200;
     public static final int IMAGE_SIZE_MIDDLE = 640;
@@ -95,105 +87,26 @@ public class ImageModel extends AbsModel {
      * @param file 需上传文件
      * @return 上传文件访问地址
      */
-    public Observable<String> putImageSync(final File file){
+    public Observable<String> putImageSync(final File file,UpProgressHandler handler){
         String name = createName(file);
         return mServiceAPI.getQiniuToken()
                 .flatMap(token -> Observable.create(new Observable.OnSubscribe<String>() {
                     @Override
                     public void call(Subscriber<? super String> subscriber) {
-                        File f = compressImage(file);
                         String url = ADDRESS + name;
 
-                        mUploadManager.put(f, name, token.getToken(), (key, info, response) -> {
+                        mUploadManager.put(file, name, token.getToken(), (key, info, response) -> {
                             if (!info.isOK()) {
                                 subscriber.onError(new Throwable("key:" + key + "  info:" + info + "  response:" + response));
                             } else {
                                 subscriber.onNext(url);
                             }
                             subscriber.onCompleted();
-                        }, null);
+                      }, new UploadOptions(null, null, false,handler, null));
                     }
                 }))
                 .doOnNext(s -> JUtils.Log("已上传：" + s))
                 .compose(new SchedulerTransform<>());
     }
 
-
-    public Observable<String> putImageSync(final File[] file){
-        final int[] count = {0};
-        if (file.length==0)return Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(Subscriber<? super String> subscriber) {
-                subscriber.onCompleted();
-            }
-        });
-        return mServiceAPI.getQiniuToken()
-                .flatMap(token -> Observable.create(new Observable.OnSubscribe<String>() {
-                    @Override
-                    public void call(Subscriber<? super String> subscriber) {
-                        for (File temp : file) {
-                            String name = createName(temp);
-                            File f = compressImage(temp);
-                            String url = ADDRESS + name;
-
-                            mUploadManager.put(f, name, token.getToken(), (key, info, response) -> {
-                                if (!info.isOK()) {
-                                    subscriber.onError(new Throwable("key:" + key + "  info:" + info + "  response:" + response));
-                                } else {
-                                    subscriber.onNext(url);
-                                }
-                                count[0]++;
-                                if (count[0] == file.length)subscriber.onCompleted();
-                            }, null);
-                        }
-                    }
-                }))
-                .doOnNext(s -> JUtils.Log("已上传：" + s))
-                .compose(new SchedulerTransform<>());
-    }
-
-
-    private File compressImage(File file){
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(file.getPath(), options);
-        int height = options.outHeight;
-        int width = options.outWidth;
-        int inSampleSize = 1;
-        int reqHeight=IMAGE_HEIGHT_MIN;
-        int reqWidth=IMAGE_WIDTH_MAX;
-        if (height > reqHeight || width > reqWidth) {
-            final int heightRatio = Math.round((float) height/ (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-        options.inSampleSize = inSampleSize;
-        options.inJustDecodeBounds = false;
-        Bitmap bitmap= BitmapFactory.decodeFile(file.getPath(), options);
-        File tempfile =  createTempImage();
-        FileOutputStream baos;
-        try {
-            baos = new FileOutputStream(tempfile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESS_LEVEL, baos);
-            baos.close();
-        } catch (IOException e) {
-            return null;
-        }
-        return tempfile;
-    }
-
-    private File createTempImage(){
-        String state = Environment.getExternalStorageState();
-        String name = Math.random()*10000+System.nanoTime()+".jpg";
-        if(state.equals(Environment.MEDIA_MOUNTED)){
-            // 已挂载
-            File pic = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File tmpFile = new File(pic, name);
-            return tmpFile;
-        }else{
-            File cacheDir = JFileManager.getInstance().getFolder(Dir.Image).getFile();
-            File tmpFile = new File(cacheDir, name);
-            return tmpFile;
-        }
-    }
 }

@@ -30,6 +30,7 @@ public class APP extends Application {
                 .setPaddingNavigationBarAble(true)
                 .setRefreshAble(true)
                 .setLoadmoreAble(true)
+                .setPaddingNavigationBarAble(true)
                 .setContainerLayoutRes(R.layout.activity_recyclerview));
     }
 }

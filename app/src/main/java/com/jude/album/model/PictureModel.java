@@ -1,12 +1,20 @@
 package com.jude.album.model;
 
+import android.content.Context;
+
+import com.jude.album.domain.body.Info;
+import com.jude.album.domain.entities.Album;
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.model.server.DaggerServiceModelComponent;
 import com.jude.album.model.server.SchedulerTransform;
+import com.jude.album.model.server.ServiceAPI;
 import com.jude.beam.model.AbsModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import rx.Observable;
 
@@ -19,6 +27,15 @@ public class PictureModel extends AbsModel {
         return getInstance(PictureModel.class);
     }
 
+    @Inject
+    ServiceAPI mServiceAPI;
+
+    @Override
+    protected void onAppCreate(Context ctx) {
+        super.onAppCreate(ctx);
+        DaggerServiceModelComponent.builder().build().inject(this);
+    }
+
     public Observable<List<Picture>> getPopularPicture(){
         return Observable.timer(1, TimeUnit.SECONDS)
                 .compose(new SchedulerTransform<>())
@@ -29,6 +46,22 @@ public class PictureModel extends AbsModel {
         return Observable.timer(1, TimeUnit.SECONDS)
                 .compose(new SchedulerTransform<>())
                 .map(time->createVirtualPicture(10));
+    }
+
+    public Observable<List<Album>> getAlbums(String id){
+        return mServiceAPI.getAlbums(id)
+                .compose(new SchedulerTransform<>());
+    }
+
+
+    public Observable<List<Picture>> getMyPictures(){
+        return mServiceAPI.getPictures()
+                .compose(new SchedulerTransform<>());
+    }
+
+    public Observable<Info> uoloadPicture(String src,String name,String intro,int height,int width,String tag){
+        return mServiceAPI.uploadPicture(src, name, intro, height, width, tag)
+                .compose(new SchedulerTransform<>());
     }
 
     static final Picture[] VIRTUAL_PICTURE = {
@@ -44,7 +77,7 @@ public class PictureModel extends AbsModel {
             new Picture("0","Air","Airbnb",2126,1181,"http://o84n5syhk.bkt.clouddn.com/57180221_p0.jpg","","","http://i2.hdslb.com/bfs/face/471eae701e59187ac67aa3bb1cb3d56a4cce5fa7.jpg",10,12,"",125863246,"Kelly"),
     };
 
-    private ArrayList<Picture> createVirtualPicture(int count){
+    public ArrayList<Picture> createVirtualPicture(int count){
         ArrayList<Picture> arrayList = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             arrayList.add(VIRTUAL_PICTURE[i%VIRTUAL_PICTURE.length]);

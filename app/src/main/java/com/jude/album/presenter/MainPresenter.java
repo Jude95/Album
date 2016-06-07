@@ -6,7 +6,9 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.model.AccountModel;
 import com.jude.album.model.PictureModel;
+import com.jude.album.model.server.SchedulerTransform;
 import com.jude.album.ui.MainActivity;
 import com.jude.album.ui.PictureActivity;
 import com.jude.beam.expansion.list.BeamListActivityPresenter;
@@ -42,6 +44,7 @@ public class MainPresenter extends BeamListActivityPresenter<MainActivity,Pictur
     protected void onCreateView(@NonNull MainActivity view) {
         super.onCreateView(view);
         PictureModel.getInstance().getPopularPicture().subscribe(list -> getView().refreshPopular(list));
+        AccountModel.getInstance().getAccountSubject().compose(new SchedulerTransform<>()).subscribe(account -> getView().setAccount(account));
         getAdapter().setOnItemClickListener(position -> {
             Intent i = new Intent(getView(), PictureActivity.class);
             i.putParcelableArrayListExtra(PictureActivity.KEY_PICTURES, (ArrayList<? extends Parcelable>) getAdapter().getAllData());

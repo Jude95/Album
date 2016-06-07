@@ -1,5 +1,6 @@
 package com.jude.album.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,11 +12,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.bumptech.glide.Glide;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.domain.entities.User;
+import com.jude.album.model.AccountModel;
 import com.jude.album.model.ImageModel;
 import com.jude.album.presenter.MainPresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
@@ -28,6 +32,10 @@ import com.jude.rollviewpager.adapter.LoopPagerAdapter;
 import com.jude.swipbackhelper.SwipeBackHelper;
 
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
+
 @RequiresPresenter(MainPresenter.class)
 public class MainActivity extends BeamListActivity<MainPresenter,Picture>
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -37,10 +45,15 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
     DrawerLayout mDrawerLayout;
     FloatingSearchView mSearchView;
     RollPagerView mVpBanner;
+
+    TextView tvName;
+    TextView tvIntro;
+    ImageView imgAvatar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SwipeBackHelper.getCurrentPage(this).setSwipeBackEnable(false);
+
 
         mSearchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
         mSearchView.setOnLeftMenuClickListener(new FloatingSearchView.OnLeftMenuClickListener() {
@@ -57,6 +70,10 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
 
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
+        tvName = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.tv_name);
+        tvIntro = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.tv_intro);
+        imgAvatar = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.img_avatar);
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -84,6 +101,23 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
             }
         });
         getListView().setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
+    }
+
+
+    public void setAccount(User user){
+        if(user == null){
+            tvName.setText("点击登录");
+            tvIntro.setText("");
+            imgAvatar.setImageResource(R.mipmap.ic_launcher);
+            tvName.setOnClickListener(view-> startActivity(new Intent(this,LoginActivity.class)));
+            imgAvatar.setOnClickListener(view-> startActivity(new Intent(this,LoginActivity.class)));
+        }else{
+            tvName.setText(user.getName());
+            tvIntro.setText(user.getIntro());
+            Glide.with(this).load(ImageModel.getSmallImage(user.getAvatar()))
+                    .bitmapTransform(new CropCircleTransformation(this))
+                    .into(imgAvatar);
+        }
     }
 
     @Override
@@ -114,6 +148,7 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
             }
         });
         getPresenter().getAdapter().notifyDataSetChanged();
+        getListView().scrollToPosition(0);
     }
 
     class PopularPagerAdapter extends LoopPagerAdapter {
@@ -160,19 +195,27 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        if (id == R.id.nav_add ||
+                id == R.id.nav_album ||
+                id == R.id.nav_collection ||
+                id == R.id.nav_star ||
+                id == R.id.nav_fans ){
+            if (!AccountModel.getInstance().hasLogin()){
+                getPresenter().startActivity(LoginActivity.class);
+                return true;
+            }
+        }
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        switch (id){
+            case R.id.nav_logout:
+                AccountModel.getInstance().logout();
+                break;
+            case R.id.nav_album:
+                getPresenter().startActivityWithData(AccountModel.getInstance().getCurrentAccount().getId(),UserPictureListActivity.class);
+                break;
+            case R.id.nav_add:
+                getPresenter().startActivity(AddPictureActivity.class);
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

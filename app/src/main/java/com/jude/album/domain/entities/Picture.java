@@ -5,11 +5,13 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by zhuchenxi on 16/6/1.
  */
 
-public class Picture implements Parcelable {
+public class Picture implements Parcelable  ,Serializable {
     String id;
     String name;
     String intro;
@@ -34,7 +36,10 @@ public class Picture implements Parcelable {
     @SerializedName("create_time")
     long createTime;
 
-    public Picture(String id, String name, String intro, int width, int height, String src, String tag, String authorId, String authorAvatar, int watchCount, int collectionCount, String albumId, long createTime,String authorName) {
+    public Picture() {
+    }
+
+    public Picture(String id, String name, String intro, int width, int height, String src, String tag, String authorId, String authorAvatar, int watchCount, int collectionCount, String albumId, long createTime, String authorName) {
         this.id = id;
         this.name = name;
         this.intro = intro;

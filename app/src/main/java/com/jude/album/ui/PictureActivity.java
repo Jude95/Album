@@ -1,10 +1,12 @@
 package com.jude.album.ui;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
@@ -28,6 +30,8 @@ public class PictureActivity extends BeamBaseActivity {
     private ViewPager mViewPager;
     private PictureFragmentAdapter mAdapter;
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -48,6 +52,9 @@ public class PictureActivity extends BeamBaseActivity {
 
         mAdapter.setPictures(pictures);
         mViewPager.setCurrentItem(index);
+
+        new Handler().post(()-> Log.i("Test","Hello1"));
+        runOnUiThread(()-> Log.i("Test","Hello2"));
     }
 
     @Override

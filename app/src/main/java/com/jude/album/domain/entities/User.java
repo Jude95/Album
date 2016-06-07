@@ -3,18 +3,42 @@ package com.jude.album.domain.entities;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by zhuchenxi on 16/6/3.
  */
 
-public class User implements Parcelable {
+public class User implements Parcelable ,Serializable{
     String id;
     String name;
     String avatar;
     String background;
-    String gender;
+    int gender;
     String intro;
-    
+    List<Picture> pictures;
+    @SerializedName("collection_picture")
+    List<Picture> collectionPictures;
+    List<User> fans;
+    List<User> star;
+    String token;
+
+    public User(String id, String name, String avatar, String background, int gender, String intro, List<Picture> pictures, List<Picture> collectionPictures, List<User> fans, List<User> star) {
+        this.id = id;
+        this.name = name;
+        this.avatar = avatar;
+        this.background = background;
+        this.gender = gender;
+        this.intro = intro;
+        this.pictures = pictures;
+        this.collectionPictures = collectionPictures;
+        this.fans = fans;
+        this.star = star;
+    }
 
     public String getAvatar() {
         return avatar;
@@ -32,11 +56,11 @@ public class User implements Parcelable {
         this.background = background;
     }
 
-    public String getGender() {
+    public int getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(int gender) {
         this.gender = gender;
     }
 
@@ -64,6 +88,46 @@ public class User implements Parcelable {
         this.name = name;
     }
 
+    public List<Picture> getCollectionPictures() {
+        return collectionPictures;
+    }
+
+    public void setCollectionPictures(List<Picture> collectionPictures) {
+        this.collectionPictures = collectionPictures;
+    }
+
+    public List<User> getFans() {
+        return fans;
+    }
+
+    public void setFans(List<User> fans) {
+        this.fans = fans;
+    }
+
+    public List<Picture> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(List<Picture> pictures) {
+        this.pictures = pictures;
+    }
+
+    public List<User> getStar() {
+        return star;
+    }
+
+    public void setStar(List<User> star) {
+        this.star = star;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
 
     @Override
     public int describeContents() {
@@ -76,11 +140,13 @@ public class User implements Parcelable {
         dest.writeString(this.name);
         dest.writeString(this.avatar);
         dest.writeString(this.background);
-        dest.writeString(this.gender);
+        dest.writeInt(this.gender);
         dest.writeString(this.intro);
-    }
-
-    public User() {
+        dest.writeTypedList(pictures);
+        dest.writeTypedList(collectionPictures);
+        dest.writeList(this.fans);
+        dest.writeList(this.star);
+        dest.writeString(this.token);
     }
 
     protected User(Parcel in) {
@@ -88,8 +154,15 @@ public class User implements Parcelable {
         this.name = in.readString();
         this.avatar = in.readString();
         this.background = in.readString();
-        this.gender = in.readString();
+        this.gender = in.readInt();
         this.intro = in.readString();
+        this.pictures = in.createTypedArrayList(Picture.CREATOR);
+        this.collectionPictures = in.createTypedArrayList(Picture.CREATOR);
+        this.fans = new ArrayList<User>();
+        in.readList(this.fans, User.class.getClassLoader());
+        this.star = new ArrayList<User>();
+        in.readList(this.star, User.class.getClassLoader());
+        this.token = in.readString();
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {

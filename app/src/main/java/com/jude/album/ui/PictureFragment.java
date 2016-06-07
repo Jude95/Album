@@ -1,6 +1,7 @@
 package com.jude.album.ui;
 
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,12 +11,15 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.model.ImageModel;
+import com.jude.beam.expansion.BeamBasePresenter;
 import com.jude.utils.JTimeTransform;
 import com.jude.utils.JUtils;
 import com.pnikosis.materialishprogress.ProgressWheel;
@@ -39,6 +43,7 @@ public class PictureFragment extends Fragment {
     FrameLayout container;
 
     InfoViewHolder mInfoViewHolder;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -94,6 +99,8 @@ public class PictureFragment extends Fragment {
         int shirkY = 0, expandY = 0;
         ValueAnimator mExpandAnimator;
         boolean isShirk = true;
+        @BindView(R.id.container_author)
+        LinearLayout containerAuthor;
 
 
         public void onCreateInfoView(FrameLayout parent) {
@@ -102,7 +109,7 @@ public class PictureFragment extends Fragment {
             parent.addView(mInfoView);
             mInfoView.post(() -> {
                 shirkY = JUtils.getScreenHeightWithStatusBar() - JUtils.dip2px(28);
-                expandY = JUtils.getScreenHeightWithStatusBar()  - mInfoView.getHeight();
+                expandY = JUtils.getScreenHeightWithStatusBar() - mInfoView.getHeight();
                 initAnimation();
                 FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mInfoView.getLayoutParams();
                 layoutParams.topMargin = shirkY;
@@ -134,6 +141,11 @@ public class PictureFragment extends Fragment {
                     .into(imgAvatar);
             tvAuthorName.setText(picture.getAuthorName());
             tvAuthorPictureCount.setText(picture.getAuthorPictureCount() + "张作品");
+            RxView.clicks(containerAuthor).subscribe(i->{
+                Intent intent = new Intent(getContext(),UserActivity.class);
+                intent.putExtra(BeamBasePresenter.KEY_ID,picture.getAuthorId());
+                getContext().startActivity(intent);
+            });
         }
 
         public void initAnimation() {
