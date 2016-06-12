@@ -1,10 +1,14 @@
 package com.jude.album.ui;
 
 import android.Manifest;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -14,6 +18,7 @@ import com.jakewharton.rxbinding.widget.RxTextView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.presenter.AddPicturePresenter;
+import com.jude.album.utils.RoundedBackgroundSpan;
 import com.jude.beam.bijection.RequiresPresenter;
 import com.jude.beam.expansion.data.BeamDataActivity;
 import com.jude.utils.JUtils;
@@ -40,6 +45,10 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
     Button btnSubmit;
     @BindView(R.id.img_picture)
     ImageView imgPicture;
+    @BindView(R.id.et_tag)
+    AppCompatEditText etTag;
+
+    private boolean mAutoChangeText = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,22 +57,51 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
         ButterKnife.bind(this);
         RxView.clicks(imgPicture)
                 .flatMap((Func1<Void, Observable<Boolean>>) aVoid -> RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE))
-                .subscribe(i->{
+                .subscribe(i -> {
                     if (i) getPresenter().selectPicture();
                     else JUtils.Toast("请赐臣权限!");
                 });
         RxView.clicks(btnSubmit)
                 .filter(aVoid -> {
-                    if (etName.getText().toString().isEmpty()){
+                    if (etName.getText().toString().isEmpty()) {
                         JUtils.Toast("请输入作品名字");
                         return false;
                     }
                     return true;
                 })
-                .subscribe(v->getPresenter().submit());
+                .subscribe(v -> getPresenter().submit());
         RxTextView.textChanges(etName).subscribe(charSequence -> {
             getPresenter().getData().setName(charSequence.toString());
         });
+
+        RxTextView.textChanges(etTag)
+                .filter(charSequence -> {
+                    if (mAutoChangeText){
+                        mAutoChangeText = false;
+                        return false;
+                    }
+                    return true;
+                })
+                .subscribe(charSequence -> {
+                    String text = charSequence.toString();
+                    text = text.replace("，",",");
+                    SpannableString msp = new SpannableString(text);
+                    int start = 0;
+                    int end = 0;
+                    while ((end = text.indexOf(',',start))!=-1){
+                        //设置字体背景色
+                        msp.setSpan(new RoundedBackgroundSpan(getResources().getColor(R.color.blue),Color.WHITE,etTag.getTextSize()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        start = end+1;
+                    }
+                    if (start!=text.length()&&text.length()>0){
+                        msp.setSpan(new RoundedBackgroundSpan(getResources().getColor(R.color.blue),Color.WHITE,etTag.getTextSize()), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    ImageSpan imageSpan;
+                    mAutoChangeText = true;
+                    etTag.setText(msp);
+                    etTag.setSelection(text.length());
+                    getPresenter().getData().setTag(text);
+                });
     }
 
     @Override

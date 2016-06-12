@@ -49,7 +49,7 @@ public class UploadService extends Service {
         if (!TextUtils.isEmpty(src)){
             ImageModel.getInstance().putImageSync(new File(src), (key, percent) -> updateUpload(index, (int) (percent*100)))
                     .doOnNext(url->completeUpload(index))
-                    .flatMap(url -> PictureModel.getInstance().uoloadPicture(url, name, intro, height, width, tag))
+                    .flatMap(url -> PictureModel.getInstance().uploadPicture(url, name, intro, height, width, tag))
                     .subscribe(i -> JUtils.Toast(name+"上传成功"));
         }
     }

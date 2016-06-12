@@ -98,6 +98,8 @@ public class AccountModel extends AbsModel {
         return mServiceAPI.checkAccountExist(number).compose(new SchedulerTransform<>()).map(Exist::isExist);
     }
 
+
+
     public void refreshAccount(){
         mServiceAPI.refreshAccount()
                 .compose(new SchedulerTransform<>())

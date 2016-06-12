@@ -5,6 +5,7 @@ import com.jude.album.app.StethoOkHttpGlideModule;
 import com.jude.album.model.AccountModel;
 import com.jude.album.model.ImageModel;
 import com.jude.album.model.PictureModel;
+import com.jude.album.model.UserModel;
 
 import javax.inject.Singleton;
 
@@ -19,6 +20,6 @@ public interface ServiceModelComponent {
     void inject(AccountModel model);
     void inject(PictureModel model);
     void inject(ImageModel model);
-//    void inject(ManagerModel model);
+    void inject(UserModel model);
     void inject(StethoOkHttpGlideModule module);
 }

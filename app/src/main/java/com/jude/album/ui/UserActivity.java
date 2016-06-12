@@ -14,11 +14,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.domain.entities.User;
+import com.jude.album.model.AccountModel;
 import com.jude.album.model.ImageModel;
 import com.jude.album.presenter.UserPresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
@@ -27,12 +31,15 @@ import com.jude.beam.expansion.data.BeamDataActivity;
 import com.jude.easyrecyclerview.EasyRecyclerView;
 import com.jude.easyrecyclerview.adapter.BaseViewHolder;
 import com.jude.easyrecyclerview.adapter.RecyclerArrayAdapter;
+import com.jude.easyrecyclerview.decoration.SpaceDecoration;
 import com.jude.utils.JUtils;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by zhuchenxi on 16/6/5.
@@ -52,6 +59,14 @@ public class UserActivity extends BeamDataActivity<UserPresenter, User> {
     FloatingActionButton fabFollow;
     @BindView(R.id.img_avatar)
     ImageView imgAvatar;
+    @BindView(R.id.img_background)
+    ImageView imgBackground;
+    @BindView(R.id.tv_name)
+    TextView tvName;
+    @BindView(R.id.img_gender)
+    ImageView imgGender;
+    @BindView(R.id.container_name)
+    LinearLayout containerName;
 
     private ImageAdapter mAdapter;
 
@@ -60,12 +75,12 @@ public class UserActivity extends BeamDataActivity<UserPresenter, User> {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
         ButterKnife.bind(this);
-        recycler.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
+        recycler.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         recycler.setAdapter(mAdapter = new ImageAdapter(this));
         mAdapter.addHeader(new RecyclerArrayAdapter.ItemView() {
             @Override
             public View onCreateView(ViewGroup parent) {
-                return LayoutInflater.from(UserActivity.this).inflate(R.layout.view_user_picture_hint,parent,false);
+                return LayoutInflater.from(UserActivity.this).inflate(R.layout.view_user_picture_hint, parent, false);
             }
 
             @Override
@@ -73,25 +88,35 @@ public class UserActivity extends BeamDataActivity<UserPresenter, User> {
 
             }
         });
+        recycler.addItemDecoration(new SpaceDecoration(JUtils.dip2px(4)));
     }
 
     @Override
     public void setData(@Nullable User data) {
         Glide.with(this)
                 .load(ImageModel.getSizeImage(data.getAvatar(), JUtils.getScreenWidth()))
+                .bitmapTransform(new CropCircleTransformation(this))
                 .into(imgAvatar);
         collapsingToolbarLayout.setTitle(data.getName());
         mAdapter.addAll(data.getPictures());
         mAdapter.setOnItemClickListener(position -> {
             Intent i = new Intent(this, PictureActivity.class);
             i.putParcelableArrayListExtra(PictureActivity.KEY_PICTURES, (ArrayList<? extends Parcelable>) data.getPictures());
-            i.putExtra(PictureActivity.KEY_INDEX,position);
+            i.putExtra(PictureActivity.KEY_INDEX, position);
             startActivity(i);
         });
+        tvName.setText(data.getName());
+        if (AccountModel.getInstance().hasLogin() && data.getId().equals(AccountModel.getInstance().getCurrentAccount().getId())) {
+            fabFollow.setImageResource(R.mipmap.edit);
+            RxView.clicks(fabFollow)
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .subscribe(i -> getPresenter().startActivity(UserEditActivity.class));
+        }
+        imgGender.setImageResource(data.getGender()==0?R.mipmap.male:R.mipmap.female);
     }
 
 
-    class ImageAdapter extends RecyclerArrayAdapter<Picture>{
+    class ImageAdapter extends RecyclerArrayAdapter<Picture> {
 
         public ImageAdapter(Context context) {
             super(context);

@@ -71,6 +71,7 @@ public class ErrorTransform<T> implements Observable.Transformer<T, T> {
                 }
             }else {
                 errorString = "网络错误";
+                JUtils.Log(throwable.getMessage());
             }
             if (has(W_TOAST)) JUtils.Toast(errorString);
         }

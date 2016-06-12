@@ -57,6 +57,9 @@
         <activity android:name=".ui.AddPictureActivity"
             android:label="添加作品"/>
         <service android:name=".service.UploadService"/>
+        <activity android:name=".ui.UserEditActivity"
+            android:label="信息编辑"
+            />
     </application>
 
 </manifest>

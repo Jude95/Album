@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.bumptech.glide.Glide;
+import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.domain.entities.User;
@@ -23,17 +24,18 @@ import com.jude.album.model.AccountModel;
 import com.jude.album.model.ImageModel;
 import com.jude.album.presenter.MainPresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
-import com.jude.album.utils.SpacesItemDecoration;
 import com.jude.beam.bijection.RequiresPresenter;
 import com.jude.beam.expansion.list.BeamListActivity;
 import com.jude.easyrecyclerview.adapter.BaseViewHolder;
 import com.jude.easyrecyclerview.adapter.RecyclerArrayAdapter;
+import com.jude.easyrecyclerview.decoration.SpaceDecoration;
 import com.jude.rollviewpager.RollPagerView;
 import com.jude.rollviewpager.adapter.LoopPagerAdapter;
 import com.jude.swipbackhelper.SwipeBackHelper;
 import com.jude.utils.JUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -49,8 +51,8 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
     RollPagerView mVpBanner;
 
     TextView tvName;
-    TextView tvIntro;
     ImageView imgAvatar;
+    ImageView imgGender;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,8 +75,8 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
         tvName = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.tv_name);
-        tvIntro = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.tv_intro);
         imgAvatar = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.img_avatar);
+        imgGender = (ImageView) mNavigationView.getHeaderView(0).findViewById(R.id.img_gender);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
@@ -102,7 +104,7 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
 
             }
         });
-        getListView().addItemDecoration(new SpacesItemDecoration(JUtils.dip2px(4)));
+        getListView().addItemDecoration(new SpaceDecoration(JUtils.dip2px(4)));
         getListView().setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
     }
 
@@ -110,16 +112,20 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
     public void setAccount(User user){
         if(user == null){
             tvName.setText("点击登录");
-            tvIntro.setText("");
             imgAvatar.setImageResource(R.mipmap.ic_launcher);
-            tvName.setOnClickListener(view-> startActivity(new Intent(this,LoginActivity.class)));
-            imgAvatar.setOnClickListener(view-> startActivity(new Intent(this,LoginActivity.class)));
+            imgGender.setImageBitmap(null);
+            RxView.clicks(mNavigationView.getHeaderView(0))
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .subscribe(v-> startActivity(new Intent(this,LoginActivity.class)));
         }else{
             tvName.setText(user.getName());
-            tvIntro.setText(user.getIntro());
             Glide.with(this).load(ImageModel.getSmallImage(user.getAvatar()))
                     .bitmapTransform(new CropCircleTransformation(this))
                     .into(imgAvatar);
+            imgGender.setImageResource(user.getGender()==0?R.mipmap.male:R.mipmap.female);
+            RxView.clicks(mNavigationView.getHeaderView(0))
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .subscribe(i -> getPresenter().startActivity(UserEditActivity.class));
         }
     }
 
@@ -150,7 +156,6 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
             public void onBindView(View headerView) {
             }
         });
-        getPresenter().getAdapter().notifyDataSetChanged();
         getListView().scrollToPosition(0);
     }
 

@@ -2,9 +2,11 @@ package com.jude.album.ui;
 
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +22,14 @@ import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.model.ImageModel;
 import com.jude.beam.expansion.BeamBasePresenter;
+import com.jude.tagview.TAGView;
 import com.jude.utils.JTimeTransform;
 import com.jude.utils.JUtils;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.bingoogolapple.flowlayout.BGAFlowLayout;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import uk.co.senab.photoview.PhotoView;
 
@@ -82,10 +86,6 @@ public class PictureFragment extends Fragment {
         TextView tvCollect;
         @BindView(R.id.tv_intro)
         TextView tvIntro;
-        @BindView(R.id.tv_size)
-        TextView tvSize;
-        @BindView(R.id.tv_date)
-        TextView tvDate;
         @BindView(R.id.img_avatar)
         ImageView imgAvatar;
         @BindView(R.id.tv_author_name)
@@ -94,14 +94,22 @@ public class PictureFragment extends Fragment {
         TextView tvAuthorPictureCount;
         @BindView(R.id.img_expand)
         ImageView imgExpand;
+        @BindView(R.id.container_author)
+        LinearLayout containerAuthor;
+        @BindView(R.id.tv_info)
+        TextView tvInfo;
+
 
         View mInfoView;
         int shirkY = 0, expandY = 0;
         ValueAnimator mExpandAnimator;
         boolean isShirk = true;
-        @BindView(R.id.container_author)
-        LinearLayout containerAuthor;
-
+        @BindView(R.id.img_gender)
+        ImageView imgGender;
+        @BindView(R.id.collection)
+        TAGView collection;
+        @BindView(R.id.container_tag)
+        BGAFlowLayout containerTag;
 
         public void onCreateInfoView(FrameLayout parent) {
             mInfoView = LayoutInflater.from(getContext()).inflate(R.layout.view_picture_detail, parent, false);
@@ -133,19 +141,37 @@ public class PictureFragment extends Fragment {
             tvWatch.setText(picture.getWatchCount() + "");
             tvCollect.setText(picture.getCollectionCount() + "");
             tvIntro.setText(picture.getIntro());
-            tvDate.setText(new JTimeTransform(picture.getCreateTime()).toString("yyyy年MM月dd日 hh:mm:ss"));
-            tvSize.setText(picture.getWidth() + "x" + picture.getHeight());
+            String intro = "";
+            intro += new JTimeTransform(picture.getCreateTime()).toString("yyyy年MM月dd日 hh:mm:ss    ");
+            intro += picture.getWidth() + "x" + picture.getHeight() + "px";
+            tvInfo.setText(intro);
             Glide.with(getContext())
                     .load(ImageModel.getSmallImage(picture.getAuthorAvatar()))
                     .bitmapTransform(new CropCircleTransformation(getContext()))
                     .into(imgAvatar);
             tvAuthorName.setText(picture.getAuthorName());
             tvAuthorPictureCount.setText(picture.getAuthorPictureCount() + "张作品");
-            RxView.clicks(containerAuthor).subscribe(i->{
-                Intent intent = new Intent(getContext(),UserActivity.class);
-                intent.putExtra(BeamBasePresenter.KEY_ID,picture.getAuthorId());
+            RxView.clicks(containerAuthor).subscribe(i -> {
+                Intent intent = new Intent(getContext(), UserActivity.class);
+                intent.putExtra(BeamBasePresenter.KEY_ID, picture.getAuthorId());
                 getContext().startActivity(intent);
             });
+            imgGender.setImageResource(picture.getAuthorGender() == 0 ? R.mipmap.male : R.mipmap.female);
+            if (!TextUtils.isEmpty(picture.getTag())){
+                String[] tags = picture.getTag().split(",");
+                for (String tag : tags) {
+                    TAGView tagView = new TAGView(getContext());
+                    tagView.setBackgroundColor(Color.parseColor("#44f0f0f0"));
+                    tagView.setTextColor(Color.parseColor("#dddddd"));
+                    tagView.setText(tag);
+                    ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, JUtils.dip2px(24));
+                    params.setMargins(JUtils.dip2px(4),JUtils.dip2px(4),JUtils.dip2px(4),JUtils.dip2px(4));
+                    tagView.setLayoutParams(params);
+                    tagView.setRadius(JUtils.dip2px(12));
+                    tagView.setPadding(JUtils.dip2px(8),JUtils.dip2px(4),JUtils.dip2px(8),JUtils.dip2px(4));
+                    containerTag.addView(tagView);
+                }
+            }
         }
 
         public void initAnimation() {

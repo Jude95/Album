@@ -11,7 +11,7 @@ import java.io.Serializable;
  * Created by zhuchenxi on 16/6/1.
  */
 
-public class Picture implements Parcelable  ,Serializable {
+public class Picture implements Serializable, Parcelable {
     String id;
     String name;
     String intro;
@@ -25,6 +25,8 @@ public class Picture implements Parcelable  ,Serializable {
     String authorAvatar;
     @SerializedName("author_name")
     String authorName;
+    @SerializedName("author_gender")
+    int authorGender;
     @SerializedName("author_picture_count")
     int authorPictureCount;
     @SerializedName("watch_count")
@@ -176,6 +178,14 @@ public class Picture implements Parcelable  ,Serializable {
         this.authorName = authorName;
     }
 
+    public int getAuthorGender() {
+        return authorGender;
+    }
+
+    public void setAuthorGender(int authorGender) {
+        this.authorGender = authorGender;
+    }
+
 
     @Override
     public int describeContents() {
@@ -194,6 +204,7 @@ public class Picture implements Parcelable  ,Serializable {
         dest.writeString(this.authorId);
         dest.writeString(this.authorAvatar);
         dest.writeString(this.authorName);
+        dest.writeInt(this.authorGender);
         dest.writeInt(this.authorPictureCount);
         dest.writeInt(this.watchCount);
         dest.writeInt(this.collectionCount);
@@ -212,6 +223,7 @@ public class Picture implements Parcelable  ,Serializable {
         this.authorId = in.readString();
         this.authorAvatar = in.readString();
         this.authorName = in.readString();
+        this.authorGender = in.readInt();
         this.authorPictureCount = in.readInt();
         this.watchCount = in.readInt();
         this.collectionCount = in.readInt();

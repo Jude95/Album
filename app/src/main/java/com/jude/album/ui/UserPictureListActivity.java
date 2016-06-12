@@ -7,11 +7,11 @@ import android.view.ViewGroup;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.presenter.UserPictureListPresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
-import com.jude.album.utils.SpacesItemDecoration;
 import com.jude.beam.bijection.RequiresPresenter;
 import com.jude.beam.expansion.list.BeamListActivity;
 import com.jude.beam.expansion.list.ListConfig;
 import com.jude.easyrecyclerview.adapter.BaseViewHolder;
+import com.jude.easyrecyclerview.decoration.SpaceDecoration;
 import com.jude.utils.JUtils;
 
 /**
@@ -25,7 +25,7 @@ public class UserPictureListActivity extends BeamListActivity<UserPictureListPre
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getListView().setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
-        getListView().addItemDecoration(new SpacesItemDecoration(JUtils.dip2px(4)));
+        getListView().addItemDecoration(new SpaceDecoration(JUtils.dip2px(4)));
     }
 
     @Override

@@ -52,7 +52,7 @@ public interface ServiceAPI {
             @Field("code") String code);
 
 
-    @GET("users/refreshAccount.php")
+    @GET("users/updateUserDetail.php")
     Observable<User> refreshAccount();
 
     @POST("users/albums.php")
@@ -75,5 +75,24 @@ public interface ServiceAPI {
             @Field("height") int height,
             @Field("width") int width,
             @Field("String") String tag
+            );
+
+    @POST("/users/follow.php")
+    @FormUrlEncoded
+    Observable<Info> follow(
+            @Field("id") String id);
+
+    @POST("users/userDetail.php")
+    @FormUrlEncoded
+    Observable<User> getUserDetail(
+            @Field("id") String id);
+
+    @POST("users/updateUserDetail.php")
+    @FormUrlEncoded
+    Observable<User> updateUserDetail(
+            @Field("avatar") String avatar,
+            @Field("name") String name,
+            @Field("intro") String intro,
+            @Field("gender") int gender
             );
 }
