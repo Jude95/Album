@@ -64,6 +64,9 @@ public class UserEditActivity extends BeamDataActivity<UserEditPresenter, User> 
                 .subscribe(i -> {
                     getPresenter().updateUserDetail();
                 });
+        RxView.clicks(imgAvatar)
+                .throttleFirst(500, TimeUnit.MILLISECONDS)
+                .subscribe(aVoid -> getPresenter().selectPicture());
     }
 
     @Override

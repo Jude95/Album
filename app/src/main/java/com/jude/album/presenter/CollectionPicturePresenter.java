@@ -7,25 +7,24 @@ import android.support.annotation.NonNull;
 
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.model.PictureModel;
+import com.jude.album.ui.CollectionPictureActivity;
 import com.jude.album.ui.PictureActivity;
-import com.jude.album.ui.UserPictureListActivity;
 import com.jude.beam.expansion.list.BeamListActivityPresenter;
 
 import java.util.ArrayList;
 
 /**
- * Created by zhuchenxi on 16/6/6.
+ * Created by Mr.Jude on 2016/6/14.
  */
-
-public class UserPictureListPresenter extends BeamListActivityPresenter<UserPictureListActivity,Picture> {
+public class CollectionPicturePresenter extends BeamListActivityPresenter<CollectionPictureActivity,Picture> {
     @Override
-    protected void onCreate(@NonNull UserPictureListActivity view, Bundle savedState) {
+    protected void onCreate(@NonNull CollectionPictureActivity view, Bundle savedState) {
         super.onCreate(view, savedState);
         onRefresh();
     }
 
     @Override
-    protected void onCreateView(@NonNull UserPictureListActivity view) {
+    protected void onCreateView(@NonNull CollectionPictureActivity view) {
         super.onCreateView(view);
         getAdapter().setOnItemClickListener(position -> {
             Intent i = new Intent(getView(), PictureActivity.class);
@@ -37,7 +36,7 @@ public class UserPictureListPresenter extends BeamListActivityPresenter<UserPict
 
     @Override
     public void onRefresh() {
-        PictureModel.getInstance().getUserPictures(getIdFromIntent())
+        PictureModel.getInstance().getCollectionsPictures(getIdFromIntent())
                 .unsafeSubscribe(getRefreshSubscriber());
     }
 }

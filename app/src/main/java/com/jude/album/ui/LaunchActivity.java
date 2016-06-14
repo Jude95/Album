@@ -1,9 +1,12 @@
 package com.jude.album.ui;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.jude.beam.expansion.BeamBaseActivity;
+import com.jude.utils.JUtils;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 /**
  * Created by zhuchenxi on 16/4/22.
@@ -12,11 +15,19 @@ public class LaunchActivity extends BeamBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startActivity(new Intent(this,MainActivity.class));
+        RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(b -> {
+                    if (b){
+                        startActivity(new Intent(this,MainActivity.class));
+                        finish();
+                    }else {
+                        JUtils.Toast("请赐臣权限！");
+                        finish();
+                    }
+                });
 //        if (AccountModel.getInstance().hasLogin())
 //            startActivity(new Intent(this,MainActivity.class));
 //        else
 //            startActivity(new Intent(this,LoginActivity.class));
-        finish();
     }
 }

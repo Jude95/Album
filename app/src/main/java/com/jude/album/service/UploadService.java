@@ -46,6 +46,7 @@ public class UploadService extends Service {
 
 
     private void submitToService(final int index, String src, String name, String intro, int height, int width, String tag){
+        JUtils.Log("submitToService"+" index:"+index+" name:"+name);
         if (!TextUtils.isEmpty(src)){
             ImageModel.getInstance().putImageSync(new File(src), (key, percent) -> updateUpload(index, (int) (percent*100)))
                     .doOnNext(url->completeUpload(index))

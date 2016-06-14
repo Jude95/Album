@@ -21,4 +21,5 @@ public class UserPresenter extends BeamDataActivityPresenter<UserActivity,User> 
                 .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.AUTH_TOAST))
                 .subscribe(getDataSubscriber());
     }
+
 }

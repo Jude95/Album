@@ -2,6 +2,7 @@ package com.jude.album.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -26,6 +27,7 @@ import com.jude.album.presenter.MainPresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
 import com.jude.beam.bijection.RequiresPresenter;
 import com.jude.beam.expansion.list.BeamListActivity;
+import com.jude.beam.expansion.list.ListConfig;
 import com.jude.easyrecyclerview.adapter.BaseViewHolder;
 import com.jude.easyrecyclerview.adapter.RecyclerArrayAdapter;
 import com.jude.easyrecyclerview.decoration.SpaceDecoration;
@@ -34,6 +36,7 @@ import com.jude.rollviewpager.adapter.LoopPagerAdapter;
 import com.jude.swipbackhelper.SwipeBackHelper;
 import com.jude.utils.JUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +60,7 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SwipeBackHelper.getCurrentPage(this).setSwipeBackEnable(false);
-
+        AccountModel.getInstance().checkUpdate(this);
 
         mSearchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
         mSearchView.setOnLeftMenuClickListener(new FloatingSearchView.OnLeftMenuClickListener() {
@@ -179,6 +182,14 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
             Glide.with(MainActivity.this)
                     .load(ImageModel.getMiddleImage(data.get(position).getSrc()))
                     .into(imageView);
+            RxView.clicks(imageView)
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .subscribe(i -> {
+                        Intent intent = new Intent(MainActivity.this, PictureActivity.class);
+                        intent.putParcelableArrayListExtra(PictureActivity.KEY_PICTURES, (ArrayList<? extends Parcelable>) data);
+                        intent.putExtra(PictureActivity.KEY_INDEX,position);
+                        startActivity(intent);
+                    });
             return imageView;
         }
 
@@ -196,6 +207,11 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected ListConfig getConfig() {
+        return super.getConfig().setLoadmoreAble(true);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -223,6 +239,18 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
                 break;
             case R.id.nav_add:
                 getPresenter().startActivity(AddPictureActivity.class);
+                break;
+            case R.id.nav_collection:
+                getPresenter().startActivityWithData(AccountModel.getInstance().getCurrentAccount().getId(),CollectionPictureActivity.class);
+                break;
+            case R.id.nav_fans:
+                getPresenter().startActivityWithData(AccountModel.getInstance().getCurrentAccount().getId(),UserFansActivity.class);
+                break;
+            case R.id.nav_star:
+                getPresenter().startActivityWithData(AccountModel.getInstance().getCurrentAccount().getId(),UserStarActivity.class);
+                break;
+            case R.id.nav_about:
+                getPresenter().startActivity(AboutActivity.class);
                 break;
         }
 

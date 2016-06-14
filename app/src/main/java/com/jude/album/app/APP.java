@@ -8,6 +8,7 @@ import com.jude.album.R;
 import com.jude.album.domain.Dir;
 import com.jude.beam.Beam;
 import com.jude.beam.expansion.list.ListConfig;
+import com.jude.utils.JActivityManager;
 import com.jude.utils.JFileManager;
 import com.jude.utils.JUtils;
 
@@ -22,6 +23,7 @@ public class APP extends Application {
         JUtils.initialize(this);
         JUtils.setDebug(BuildConfig.DEBUG, "Album");
         JFileManager.getInstance().init(this, Dir.values());
+        registerActivityLifecycleCallbacks(JActivityManager.getActivityLifecycleCallbacks());
         Stetho.initializeWithDefaults(this);
         Beam.init(this);
         Beam.setViewExpansionDelegateProvider(NewViewExpansion::new);
@@ -29,7 +31,7 @@ public class APP extends Application {
         ListConfig.setDefaultListConfig(new ListConfig()
                 .setPaddingNavigationBarAble(true)
                 .setRefreshAble(true)
-                .setLoadmoreAble(true)
+                .setLoadmoreAble(false)
                 .setPaddingNavigationBarAble(true)
                 .setContainerLayoutRes(R.layout.activity_recyclerview));
     }

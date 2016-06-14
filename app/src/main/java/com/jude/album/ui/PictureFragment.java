@@ -21,17 +21,25 @@ import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.model.ImageModel;
+import com.jude.album.model.PictureModel;
+import com.jude.album.model.server.ErrorTransform;
+import com.jude.album.utils.ProgressDialogTransform;
+import com.jude.beam.expansion.BeamBaseActivity;
 import com.jude.beam.expansion.BeamBasePresenter;
 import com.jude.tagview.TAGView;
 import com.jude.utils.JTimeTransform;
 import com.jude.utils.JUtils;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.bingoogolapple.flowlayout.BGAFlowLayout;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
+import rx.Observable;
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Created by zhuchenxi on 16/6/2.
@@ -73,6 +81,17 @@ public class PictureFragment extends Fragment {
         mInfoViewHolder = new InfoViewHolder();
         mInfoViewHolder.onCreateInfoView(container);
         mInfoViewHolder.onBindInfoView(mPicture);
+        photoview.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+            @Override
+            public void onPhotoTap(View view, float v, float v1) {
+                mInfoViewHolder.shirk();
+            }
+
+            @Override
+            public void onOutsidePhotoTap() {
+                mInfoViewHolder.shirk();
+            }
+        });
     }
 
 
@@ -110,6 +129,8 @@ public class PictureFragment extends Fragment {
         TAGView collection;
         @BindView(R.id.container_tag)
         BGAFlowLayout containerTag;
+        @BindView(R.id.container_info)
+        LinearLayout containerInfo;
 
         public void onCreateInfoView(FrameLayout parent) {
             mInfoView = LayoutInflater.from(getContext()).inflate(R.layout.view_picture_detail, parent, false);
@@ -124,18 +145,28 @@ public class PictureFragment extends Fragment {
                 mInfoView.setLayoutParams(layoutParams);
                 mInfoView.setVisibility(View.VISIBLE);
             });
-            imgExpand.setOnClickListener(v -> {
+            containerInfo.setOnClickListener(v -> {
                 if (isShirk) {
-                    mExpandAnimator.start();
-                    imgExpand.setImageResource(R.mipmap.down);
+                    expand();
                 } else {
-                    mExpandAnimator.reverse();
-                    imgExpand.setImageResource(R.mipmap.up);
+                    shirk();
                 }
-                isShirk = !isShirk;
             });
         }
 
+        public void expand(){
+            if (!isShirk)return;
+            mExpandAnimator.start();
+            imgExpand.setImageResource(R.mipmap.down);
+            isShirk = false;
+        }
+
+        public void shirk(){
+            if (isShirk)return;
+            mExpandAnimator.reverse();
+            imgExpand.setImageResource(R.mipmap.up);
+            isShirk = true;
+        }
         public void onBindInfoView(Picture picture) {
             tvName.setText(picture.getName());
             tvWatch.setText(picture.getWatchCount() + "");
@@ -156,8 +187,35 @@ public class PictureFragment extends Fragment {
                 intent.putExtra(BeamBasePresenter.KEY_ID, picture.getAuthorId());
                 getContext().startActivity(intent);
             });
+
+            if (picture.isCollected()) {
+                collection.setText("已收藏");
+            } else {
+                collection.setText("收藏作品");
+            }
+            RxView.clicks(collection)
+                    .throttleFirst(500, TimeUnit.MILLISECONDS)
+                    .map(aVoid -> picture.isCollected())
+                    .subscribe(isCollected -> {//网络请求
+                        Observable.just(isCollected).flatMap(b -> {
+                            if (!isCollected)
+                                return PictureModel.getInstance().collect(picture.getId());
+                            else return PictureModel.getInstance().unCollect(picture.getId());
+                        })
+                                .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.AUTH_TOAST))
+                                .compose(new ProgressDialogTransform<>((BeamBaseActivity) getActivity(), "处理中"))
+                                .doOnNext(info1 -> picture.setCollected(!picture.isCollected()))
+                                .subscribe(info -> {//修改UI
+                                    if (picture.isCollected()) {
+                                        collection.setText("已收藏");
+                                    } else {
+                                        collection.setText("收藏作品");
+                                    }
+                                });
+
+                    });
             imgGender.setImageResource(picture.getAuthorGender() == 0 ? R.mipmap.male : R.mipmap.female);
-            if (!TextUtils.isEmpty(picture.getTag())){
+            if (!TextUtils.isEmpty(picture.getTag())) {
                 String[] tags = picture.getTag().split(",");
                 for (String tag : tags) {
                     TAGView tagView = new TAGView(getContext());
@@ -165,10 +223,10 @@ public class PictureFragment extends Fragment {
                     tagView.setTextColor(Color.parseColor("#dddddd"));
                     tagView.setText(tag);
                     ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, JUtils.dip2px(24));
-                    params.setMargins(JUtils.dip2px(4),JUtils.dip2px(4),JUtils.dip2px(4),JUtils.dip2px(4));
+                    params.setMargins(JUtils.dip2px(4), JUtils.dip2px(4), JUtils.dip2px(4), JUtils.dip2px(4));
                     tagView.setLayoutParams(params);
                     tagView.setRadius(JUtils.dip2px(12));
-                    tagView.setPadding(JUtils.dip2px(8),JUtils.dip2px(4),JUtils.dip2px(8),JUtils.dip2px(4));
+                    tagView.setPadding(JUtils.dip2px(8), JUtils.dip2px(4), JUtils.dip2px(8), JUtils.dip2px(4));
                     containerTag.addView(tagView);
                 }
             }

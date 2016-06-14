@@ -8,7 +8,6 @@ import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.ImageSpan;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -26,8 +25,6 @@ import com.tbruyelle.rxpermissions.RxPermissions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Observable;
-import rx.functions.Func1;
 
 /**
  * Created by zhuchenxi on 16/6/6.
@@ -56,7 +53,7 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
         setContentView(R.layout.activity_add_picture);
         ButterKnife.bind(this);
         RxView.clicks(imgPicture)
-                .flatMap((Func1<Void, Observable<Boolean>>) aVoid -> RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                .flatMap(aVoid -> RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE))
                 .subscribe(i -> {
                     if (i) getPresenter().selectPicture();
                     else JUtils.Toast("请赐臣权限!");
@@ -73,7 +70,9 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
         RxTextView.textChanges(etName).subscribe(charSequence -> {
             getPresenter().getData().setName(charSequence.toString());
         });
-
+        RxTextView.textChanges(etIntro).subscribe(charSequence -> {
+            getPresenter().getData().setIntro(charSequence.toString());
+        });
         RxTextView.textChanges(etTag)
                 .filter(charSequence -> {
                     if (mAutoChangeText){
@@ -96,7 +95,6 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
                     if (start!=text.length()&&text.length()>0){
                         msp.setSpan(new RoundedBackgroundSpan(getResources().getColor(R.color.blue),Color.WHITE,etTag.getTextSize()), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
-                    ImageSpan imageSpan;
                     mAutoChangeText = true;
                     etTag.setText(msp);
                     etTag.setSelection(text.length());
@@ -111,4 +109,6 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
                 .error(R.mipmap.picture_add)
                 .into(imgPicture);
     }
+
+
 }

@@ -1,7 +1,12 @@
 package com.jude.album.model;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Environment;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.jude.album.R;
 import com.jude.album.domain.Dir;
 import com.jude.album.domain.body.Exist;
 import com.jude.album.domain.body.Info;
@@ -11,6 +16,7 @@ import com.jude.album.model.server.ErrorTransform;
 import com.jude.album.model.server.HeaderInterceptors;
 import com.jude.album.model.server.SchedulerTransform;
 import com.jude.album.model.server.ServiceAPI;
+import com.jude.album.service.UpdateService;
 import com.jude.beam.model.AbsModel;
 import com.jude.utils.JFileManager;
 import com.jude.utils.JUtils;
@@ -106,14 +112,57 @@ public class AccountModel extends AbsModel {
                 .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.NONE))
                 .subscribe(account -> mAccountSubject.onNext(account));
     }
-//
-//    public Observable<Info> edit(String name, String intro, String avatar, long birth, int gender){
-//        return mServiceAPI.edit(name, intro, birth, gender, avatar).compose(new SchedulerTransform<>())
-//                .doOnNext( info -> refreshAccount());
-//    }
+
 
     public void logout(){
         mAccountSubject.onNext(null);
+    }
+
+    public void checkUpdate(Context ctx){
+        mServiceAPI.getUpdateInfo()
+                .compose(new SchedulerTransform<>())
+                .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.NONE))
+                .subscribe(updateInfo -> {
+                    JUtils.Log("O V"+updateInfo.getVersionCode()+"  L V"+JUtils.getAppVersionCode());
+                    if (updateInfo.getVersionCode() > JUtils.getAppVersionCode()) {
+                        showUpdateDialog(
+                                ctx,
+                                updateInfo.getVersionName(),
+                                updateInfo.getInfo(),
+                                updateInfo.getUrl());
+                    }
+                });
+    }
+
+    private void showUpdateDialog(Context ctx,String versionName,String content,String url){
+        new MaterialDialog.Builder(ctx)
+                .title("新版本 "+versionName)
+                .content(content)
+                .positiveText("立即升级")
+                .negativeText("取消")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(MaterialDialog materialDialog, DialogAction dialogAction) {
+                        JUtils.Log("Get Start");
+                        Intent updateIntent = new Intent(ctx, UpdateService.class);
+                        updateIntent.putExtra("title", ctx.getString(R.string.app_name)+"正在更新");
+                        updateIntent.putExtra("url", url);
+                        updateIntent.putExtra("path", findDownLoadDirectory());
+                        updateIntent.putExtra("name", ctx.getString(R.string.app_name) + "v" + versionName + ".apk");
+                        ctx.startService(updateIntent);
+                    }
+                })
+                .show();
+    }
+
+    private String findDownLoadDirectory(){
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+            JUtils.Log("找到SD卡");
+            return Environment.getExternalStorageDirectory() + "/" + "download/";
+        }else{
+            JUtils.Log("没有SD卡");
+            return Environment.getRootDirectory() + "/" + "download/";
+        }
     }
 
 }

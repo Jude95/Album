@@ -2,6 +2,7 @@ package com.jude.album.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -24,8 +25,11 @@ import com.jude.album.domain.entities.Picture;
 import com.jude.album.domain.entities.User;
 import com.jude.album.model.AccountModel;
 import com.jude.album.model.ImageModel;
+import com.jude.album.model.UserModel;
+import com.jude.album.model.server.ErrorTransform;
 import com.jude.album.presenter.UserPresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
+import com.jude.album.utils.ProgressDialogTransform;
 import com.jude.beam.bijection.RequiresPresenter;
 import com.jude.beam.expansion.data.BeamDataActivity;
 import com.jude.easyrecyclerview.EasyRecyclerView;
@@ -40,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
+import rx.Observable;
 
 /**
  * Created by zhuchenxi on 16/6/5.
@@ -113,6 +118,36 @@ public class UserActivity extends BeamDataActivity<UserPresenter, User> {
                     .subscribe(i -> getPresenter().startActivity(UserEditActivity.class));
         }
         imgGender.setImageResource(data.getGender()==0?R.mipmap.male:R.mipmap.female);
+        if (data.isFollowed()){
+            fabFollow.setImageResource(R.mipmap.fab_follow_focus);
+            fabFollow.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }else {
+            fabFollow.setImageResource(R.mipmap.fab_follow);
+            fabFollow.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.orange)));
+        }
+        RxView.clicks(fabFollow)
+                .throttleFirst(500, TimeUnit.MILLISECONDS)
+                .map(aVoid -> data.isFollowed())
+                .subscribe(isFollowed -> {//网络请求
+                    Observable.just(isFollowed).flatMap(b ->{
+                        if (!isFollowed)return UserModel.getInstance().follow(data.getId());
+                        else return UserModel.getInstance().unFollow(data.getId());
+                    })
+                            .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.AUTH_TOAST))
+                            .compose(new ProgressDialogTransform<>(this,"处理中"))
+                            .doOnNext(info1 -> data.setFollowed(!data.isFollowed()))
+                            .subscribe(info -> {//修改UI
+                                if (data.isFollowed()){
+                                    JUtils.Toast("已关注");
+                                    fabFollow.setImageResource(R.mipmap.fab_follow_focus);
+                                    fabFollow.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+                                }else {
+                                    JUtils.Toast("已取消关注");
+                                    fabFollow.setImageResource(R.mipmap.fab_follow);
+                                    fabFollow.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.orange)));
+                                }
+                            });
+                });
     }
 
 

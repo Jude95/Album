@@ -5,7 +5,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.ViewGroup;
 
 import com.jude.album.domain.entities.Picture;
-import com.jude.album.presenter.UserPictureListPresenter;
+import com.jude.album.presenter.CollectionPicturePresenter;
 import com.jude.album.ui.viewholder.ImageViewHolder;
 import com.jude.beam.bijection.RequiresPresenter;
 import com.jude.beam.expansion.list.BeamListActivity;
@@ -14,11 +14,10 @@ import com.jude.easyrecyclerview.decoration.SpaceDecoration;
 import com.jude.utils.JUtils;
 
 /**
- * Created by zhuchenxi on 16/6/6.
+ * Created by Mr.Jude on 2016/6/14.
  */
-
-@RequiresPresenter(UserPictureListPresenter.class)
-public class UserPictureListActivity extends BeamListActivity<UserPictureListPresenter,Picture> {
+@RequiresPresenter(CollectionPicturePresenter.class)
+public class CollectionPictureActivity extends BeamListActivity<CollectionPicturePresenter,Picture> {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,5 +30,4 @@ public class UserPictureListActivity extends BeamListActivity<UserPictureListPre
     protected BaseViewHolder<Picture> getViewHolder(ViewGroup parent, int viewType) {
         return new ImageViewHolder(parent);
     }
-
 }

@@ -36,6 +36,7 @@ public class ImageViewHolder extends BaseViewHolder<Picture> {
         imgPicture.setLayoutParams(params);
         Glide.with(getContext())
                 .load(ImageModel.getSizeImage(data.getSrc(),width))
+                .override(realWidth,realHeight)
                 .into(imgPicture);
     }
 }

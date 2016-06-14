@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +19,8 @@ public class User implements Parcelable ,Serializable{
     String background;
     int gender;
     String intro;
+    @SerializedName("is_followed")
+    boolean isFollowed;
     List<Picture> pictures;
     @SerializedName("collection_picture")
     List<Picture> collectionPictures;
@@ -38,6 +39,14 @@ public class User implements Parcelable ,Serializable{
         this.collectionPictures = collectionPictures;
         this.fans = fans;
         this.star = star;
+    }
+
+    public boolean isFollowed() {
+        return isFollowed;
+    }
+
+    public void setFollowed(boolean followed) {
+        isFollowed = followed;
     }
 
     public String getAvatar() {
@@ -142,10 +151,11 @@ public class User implements Parcelable ,Serializable{
         dest.writeString(this.background);
         dest.writeInt(this.gender);
         dest.writeString(this.intro);
-        dest.writeTypedList(pictures);
-        dest.writeTypedList(collectionPictures);
-        dest.writeList(this.fans);
-        dest.writeList(this.star);
+        dest.writeByte(this.isFollowed ? (byte) 1 : (byte) 0);
+        dest.writeTypedList(this.pictures);
+        dest.writeTypedList(this.collectionPictures);
+        dest.writeTypedList(this.fans);
+        dest.writeTypedList(this.star);
         dest.writeString(this.token);
     }
 
@@ -156,16 +166,15 @@ public class User implements Parcelable ,Serializable{
         this.background = in.readString();
         this.gender = in.readInt();
         this.intro = in.readString();
+        this.isFollowed = in.readByte() != 0;
         this.pictures = in.createTypedArrayList(Picture.CREATOR);
         this.collectionPictures = in.createTypedArrayList(Picture.CREATOR);
-        this.fans = new ArrayList<User>();
-        in.readList(this.fans, User.class.getClassLoader());
-        this.star = new ArrayList<User>();
-        in.readList(this.star, User.class.getClassLoader());
+        this.fans = in.createTypedArrayList(User.CREATOR);
+        this.star = in.createTypedArrayList(User.CREATOR);
         this.token = in.readString();
     }
 
-    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+    public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel source) {
             return new User(source);

@@ -1,17 +1,17 @@
 package com.jude.album.ui;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.model.PictureModel;
+import com.jude.album.model.server.ErrorTransform;
 import com.jude.beam.expansion.BeamBaseActivity;
 import com.jude.swipbackhelper.SwipeBackHelper;
 
@@ -30,7 +30,7 @@ public class PictureActivity extends BeamBaseActivity {
     private ViewPager mViewPager;
     private PictureFragmentAdapter mAdapter;
 
-
+    private ArrayList<Picture> mPictures;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -44,17 +44,32 @@ public class PictureActivity extends BeamBaseActivity {
         mAdapter = new PictureFragmentAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mAdapter);
 
-        ArrayList<Picture> pictures = getIntent().getParcelableArrayListExtra(KEY_PICTURES);
-        if (pictures == null)pictures = new ArrayList<>();
+        mPictures = getIntent().getParcelableArrayListExtra(KEY_PICTURES);
+        if (mPictures == null) mPictures = new ArrayList<>();
         Picture picture =  getIntent().getParcelableExtra(KEY_PICTURE);
-        if (picture!=null) pictures.add(picture);
+        if (picture!=null) mPictures.add(picture);
         int index = getIntent().getIntExtra(KEY_INDEX,0);
 
-        mAdapter.setPictures(pictures);
+        mAdapter.setPictures(mPictures);
         mViewPager.setCurrentItem(index);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-        new Handler().post(()-> Log.i("Test","Hello1"));
-        runOnUiThread(()-> Log.i("Test","Hello2"));
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                PictureModel.getInstance().updateWatchCount(mPictures.get(position).getId())
+                        .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.NONE))
+                        .subscribe();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     @Override
@@ -62,7 +77,7 @@ public class PictureActivity extends BeamBaseActivity {
         return super.dispatchTouchEvent(ev);
     }
 
-    class PictureFragmentAdapter extends FragmentStatePagerAdapter{
+    static class PictureFragmentAdapter extends FragmentStatePagerAdapter{
         ArrayList<Picture> mPictures;
 
         public PictureFragmentAdapter(FragmentManager fm) {

@@ -60,6 +60,15 @@
         <activity android:name=".ui.UserEditActivity"
             android:label="信息编辑"
             />
+        <activity android:name=".ui.CollectionPictureActivity"
+            android:label="收藏列表"/>
+        <activity android:name=".ui.UserFansActivity"
+            android:label="我的粉丝"/>
+        <activity android:name=".ui.UserStarActivity"
+            android:label="我的关注"/>
+        <activity android:name=".ui.AboutActivity"
+            android:label="关于"/>
+        <service android:name=".service.UpdateService"/>
     </application>
 
 </manifest>

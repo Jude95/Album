@@ -19,6 +19,8 @@ public class Picture implements Serializable, Parcelable {
     int height;
     String src;
     String tag;
+    @SerializedName("is_collection")
+    boolean isCollected;
     @SerializedName("author_id")
     String authorId;
     @SerializedName("author_avatar")
@@ -56,6 +58,14 @@ public class Picture implements Serializable, Parcelable {
         this.albumId = albumId;
         this.createTime = createTime;
         this.authorName = authorName;
+    }
+
+    public boolean isCollected() {
+        return isCollected;
+    }
+
+    public void setCollected(boolean collected) {
+        isCollected = collected;
     }
 
     public String getAlbumId() {
@@ -201,6 +211,7 @@ public class Picture implements Serializable, Parcelable {
         dest.writeInt(this.height);
         dest.writeString(this.src);
         dest.writeString(this.tag);
+        dest.writeByte(this.isCollected ? (byte) 1 : (byte) 0);
         dest.writeString(this.authorId);
         dest.writeString(this.authorAvatar);
         dest.writeString(this.authorName);
@@ -220,6 +231,7 @@ public class Picture implements Serializable, Parcelable {
         this.height = in.readInt();
         this.src = in.readString();
         this.tag = in.readString();
+        this.isCollected = in.readByte() != 0;
         this.authorId = in.readString();
         this.authorAvatar = in.readString();
         this.authorName = in.readString();
@@ -231,7 +243,7 @@ public class Picture implements Serializable, Parcelable {
         this.createTime = in.readLong();
     }
 
-    public static final Parcelable.Creator<Picture> CREATOR = new Parcelable.Creator<Picture>() {
+    public static final Creator<Picture> CREATOR = new Creator<Picture>() {
         @Override
         public Picture createFromParcel(Parcel source) {
             return new Picture(source);

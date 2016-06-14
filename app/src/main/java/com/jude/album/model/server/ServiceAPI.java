@@ -6,6 +6,7 @@ import com.jude.album.domain.body.Info;
 import com.jude.album.domain.body.Token;
 import com.jude.album.domain.entities.Album;
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.domain.entities.UpdateInfo;
 import com.jude.album.domain.entities.User;
 
 import java.util.List;
@@ -52,8 +53,11 @@ public interface ServiceAPI {
             @Field("code") String code);
 
 
-    @GET("users/updateUserDetail.php")
+    @GET("users/prolongToken.php")
     Observable<User> refreshAccount();
+
+
+//_________________________________________________________________________________
 
     @POST("users/albums.php")
     @FormUrlEncoded
@@ -65,6 +69,15 @@ public interface ServiceAPI {
     Observable<List<Picture>> getPictures(
             @Field("id") String id);
 
+    @POST("pictures/updateWatchCount.php")
+    @FormUrlEncoded
+    Observable<Info> updateWatchCount(
+            @Field("id") String id);
+
+    @POST("users/pictureCollection.php")
+    @FormUrlEncoded
+    Observable<List<Picture>> getCollectionsPictures(
+            @Field("id") String id);
 
     @POST("pictures/uploadPicture.php")
     @FormUrlEncoded
@@ -74,12 +87,36 @@ public interface ServiceAPI {
             @Field("intro") String intro,
             @Field("height") int height,
             @Field("width") int width,
-            @Field("String") String tag
+            @Field("tag") String tag
             );
 
-    @POST("/users/follow.php")
+    @POST("pictures/recommendPicture.php")
+    @FormUrlEncoded
+    Observable<List<Picture>> getRecommendPicture(
+            @Field("page") int page);
+
+    @GET("pictures/popularPicture.php")
+    Observable<List<Picture>> getPopularPicture();
+
+    @POST("pictures/collection.php")
+    @FormUrlEncoded
+    Observable<Info> collection(
+            @Field("id") String id);
+
+    @POST("pictures/cancelCollection.php")
+    @FormUrlEncoded
+    Observable<Info> cancelCollection(
+            @Field("id") String id);
+
+
+    @POST("users/follow.php")
     @FormUrlEncoded
     Observable<Info> follow(
+            @Field("id") String id);
+
+    @POST("users/cancelFollow.php")
+    @FormUrlEncoded
+    Observable<Info> unFollow(
             @Field("id") String id);
 
     @POST("users/userDetail.php")
@@ -87,12 +124,27 @@ public interface ServiceAPI {
     Observable<User> getUserDetail(
             @Field("id") String id);
 
+    @POST("users/followers.php")
+    @FormUrlEncoded
+    Observable<List<User>> getFans(
+            @Field("id") String id);
+
+    @POST("users/stars.php")
+    @FormUrlEncoded
+    Observable<List<User>> getStars(
+            @Field("id") String id);
+
     @POST("users/updateUserDetail.php")
     @FormUrlEncoded
-    Observable<User> updateUserDetail(
+    Observable<Info> updateUserDetail(
             @Field("avatar") String avatar,
             @Field("name") String name,
             @Field("intro") String intro,
             @Field("gender") int gender
             );
+
+    @GET("config/checkUpdate.php")
+    Observable<UpdateInfo> getUpdateInfo();
+
 }
+

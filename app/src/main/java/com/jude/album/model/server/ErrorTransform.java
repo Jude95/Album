@@ -1,5 +1,11 @@
 package com.jude.album.model.server;
 
+import android.app.Activity;
+import android.app.LauncherActivity;
+import android.content.Intent;
+
+import com.jude.album.ui.LoginActivity;
+import com.jude.utils.JActivityManager;
 import com.jude.utils.JUtils;
 
 import org.json.JSONException;
@@ -33,7 +39,7 @@ public class ErrorTransform<T> implements Observable.Transformer<T, T> {
         private static final int W_TOAST = 1;
         private static final int W_AUTH = 2;
 
-        public static final ServerErrorHandler NONE = new ServerErrorHandler(1<< W_TOAST);
+        public static final ServerErrorHandler NONE = new ServerErrorHandler(0);
         public static final ServerErrorHandler AUTH = new ServerErrorHandler(1<< W_AUTH);
         public static final ServerErrorHandler AUTH_TOAST = new ServerErrorHandler(1<< W_TOAST |1<< W_AUTH);
 
@@ -56,7 +62,10 @@ public class ErrorTransform<T> implements Observable.Transformer<T, T> {
                 HttpException err = (HttpException) throwable;
                 if (err.code() >= 400 && err.code() < 500){
                     //添加统一的异常处理
-                    if (err.code() == 401&&has(W_AUTH))authFailure();
+                    if (err.code() == 401&&has(W_AUTH)){
+                        authFailure();
+                        return;
+                    }
 
                     try {
                         JSONObject jsonObject = new JSONObject(err.response().errorBody().string());
@@ -77,13 +86,14 @@ public class ErrorTransform<T> implements Observable.Transformer<T, T> {
         }
 
         private void authFailure(){
-//            Activity activity = JActivityManager.getInstance().currentActivity();
-//            if (activity!=null&&
-//                    !(activity instanceof LauncherActivity)&&
-//                    !(activity instanceof LoginActivity)){
-//                Intent i = new Intent(activity,LoginActivity.class);
-//                activity.startActivity(i);
-//            }
+            JUtils.Toast("请先登录");
+            Activity activity = JActivityManager.currentActivity();
+            if (activity!=null&&
+                    !(activity instanceof LauncherActivity)&&
+                    !(activity instanceof LoginActivity)){
+                Intent i = new Intent(activity,LoginActivity.class);
+                activity.startActivity(i);
+            }
         }
     }
 

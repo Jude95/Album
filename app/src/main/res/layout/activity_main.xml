@@ -26,7 +26,7 @@
             app:floatingSearch_backgroundColor="#dfff"
             app:floatingSearch_searchBarMarginLeft="@dimen/search_view_inset"
             app:floatingSearch_searchBarMarginRight="@dimen/search_view_inset"
-            app:floatingSearch_searchHint="拾影"
+            app:floatingSearch_searchHint="@string/app_name"
             app:floatingSearch_suggestionsListAnimDuration="250"
             app:floatingSearch_showSearchKey="false"
             app:floatingSearch_leftActionMode="showHamburger"

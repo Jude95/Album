@@ -12,7 +12,6 @@ import com.jude.beam.model.AbsModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -37,15 +36,13 @@ public class PictureModel extends AbsModel {
     }
 
     public Observable<List<Picture>> getPopularPicture(){
-        return Observable.timer(1, TimeUnit.SECONDS)
-                .compose(new SchedulerTransform<>())
-                .map(time->createVirtualPicture(10));
+        return mServiceAPI.getPopularPicture()
+                .compose(new SchedulerTransform<>());
     }
 
     public Observable<List<Picture>> getRecommendPicture(int page){
-        return Observable.timer(1, TimeUnit.SECONDS)
-                .compose(new SchedulerTransform<>())
-                .map(time->createVirtualPicture(10));
+        return mServiceAPI.getRecommendPicture(page)
+                .compose(new SchedulerTransform<>());
     }
 
     public Observable<List<Album>> getAlbums(String id){
@@ -54,9 +51,27 @@ public class PictureModel extends AbsModel {
     }
 
 
-    public Observable<List<Picture>> getMyPictures(String id){
+    public Observable<Info> updateWatchCount(String id){
+        return mServiceAPI.updateWatchCount(id)
+                .compose(new SchedulerTransform<>());
+    }
+
+    public Observable<List<Picture>> getUserPictures(String id){
         return mServiceAPI.getPictures(id)
                 .compose(new SchedulerTransform<>());
+    }
+
+    public Observable<List<Picture>> getCollectionsPictures(String id){
+        return mServiceAPI.getCollectionsPictures(id)
+                .compose(new SchedulerTransform<>());
+    }
+
+    public Observable<Info> collect(String id){
+        return mServiceAPI.collection(id).compose(new SchedulerTransform<>());
+    }
+
+    public Observable<Info> unCollect(String id){
+        return mServiceAPI.cancelCollection(id).compose(new SchedulerTransform<>());
     }
 
     public Observable<Info> uploadPicture(String src, String name, String intro, int height, int width, String tag){

@@ -2,6 +2,7 @@ package com.jude.album.model;
 
 import android.content.Context;
 
+import com.jude.album.domain.body.Info;
 import com.jude.album.domain.entities.User;
 import com.jude.album.model.server.DaggerServiceModelComponent;
 import com.jude.album.model.server.SchedulerTransform;
@@ -9,7 +10,7 @@ import com.jude.album.model.server.ServiceAPI;
 import com.jude.beam.model.AbsModel;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -32,22 +33,32 @@ public class UserModel extends AbsModel {
         DaggerServiceModelComponent.builder().build().inject(this);
     }
 
+
     public Observable<User> getUserDetail(String id){
-        return Observable.timer(1, TimeUnit.SECONDS)
-                .flatMap(l -> Observable.just(createVirtualUser(5).get((int) (Math.random()*5))))
+        return mServiceAPI.getUserDetail(id).compose(new SchedulerTransform<>());
+    }
+
+    public Observable<Info> updateUserDetail(String avatar, String name, int gender, String intro){
+        return mServiceAPI.updateUserDetail(avatar,name,intro,gender)
+                .doOnNext(i -> AccountModel.getInstance().refreshAccount())
                 .compose(new SchedulerTransform<>());
     }
 
-//    public Observable<User> getUserDetail(String id){
-//        return mServiceAPI.getUserDetail(id).compose(new SchedulerTransform<>());
-//    }
-
-    public Observable updateUserDetail(String avatar,String name,int gender,String intro){
-        return mServiceAPI.updateUserDetail(avatar,name,intro,gender).compose(new SchedulerTransform<>());
+    public Observable<Info> follow(String id){
+        return mServiceAPI.follow(id).compose(new SchedulerTransform<>());
     }
 
+    public Observable<Info> unFollow(String id){
+        return mServiceAPI.unFollow(id).compose(new SchedulerTransform<>());
+    }
 
+    public Observable<List<User>> getFans(String id){
+        return mServiceAPI.getFans(id).compose(new SchedulerTransform<>());
+    }
 
+    public Observable<List<User>> getStars(String id){
+        return mServiceAPI.getStars(id).compose(new SchedulerTransform<>());
+    }
     public static final User[] VIRTUAL_USER = {
             new User("0","灵雨水榭","http://i1.hdslb.com/bfs/face/4fca1ce835ea7246ab279b2e92eed5cb90728b70.jpg","",1,"感觉对了就收藏吧，硬币火不火什么的都不重要，喵！", PictureModel.getInstance().createVirtualPicture((int) (Math.random()*10)),PictureModel.getInstance().createVirtualPicture((int) (Math.random()*10)),null,null),
             new User("1","何人君","http://i2.hdslb.com/bfs/face/4bc37248bf6b18cdc34c627590aab9cc6d80295d.gif","",1,"熱愛孤獨者，非神即獸。/無論如何,我一定會自由地活著！！！",PictureModel.getInstance().createVirtualPicture((int) (Math.random()*10)),PictureModel.getInstance().createVirtualPicture((int) (Math.random()*10)),null,null),

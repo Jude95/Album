@@ -71,6 +71,7 @@ public class AddPicturePresenter extends BeamDataActivityPresenter<AddPictureAct
         JUtils.Toast("正在上传");
         getView().finish();
     }
+
     @Override
     protected void onResult(int requestCode, int resultCode, Intent data) {
         super.onResult(requestCode, resultCode, data);
