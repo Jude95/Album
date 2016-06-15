@@ -24,4 +24,13 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="28dp" />
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?actionBarSize"
+        app:theme="@style/AppTheme.Dark"
+        app:margin_status="true"
+        android:background="@color/transparent"/>
+
 </com.jude.fitsystemwindowlayout.FitSystemWindowsFrameLayout>

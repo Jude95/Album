@@ -70,6 +70,11 @@ public class PictureModel extends AbsModel {
         return mServiceAPI.collection(id).compose(new SchedulerTransform<>());
     }
 
+
+    public Observable<Info> deletePicture(String id){
+        return mServiceAPI.deletePicture(id).compose(new SchedulerTransform<>());
+    }
+
     public Observable<Info> unCollect(String id){
         return mServiceAPI.cancelCollection(id).compose(new SchedulerTransform<>());
     }

@@ -233,6 +233,7 @@ public class MainActivity extends BeamListActivity<MainPresenter,Picture>
         switch (id){
             case R.id.nav_logout:
                 AccountModel.getInstance().logout();
+                getPresenter().startActivity(LoginActivity.class);
                 break;
             case R.id.nav_album:
                 getPresenter().startActivityWithData(AccountModel.getInstance().getCurrentAccount().getId(),UserPictureListActivity.class);

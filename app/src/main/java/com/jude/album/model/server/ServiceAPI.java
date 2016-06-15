@@ -74,6 +74,12 @@ public interface ServiceAPI {
     Observable<Info> updateWatchCount(
             @Field("id") String id);
 
+
+    @POST("pictures/deletePicture.php")
+    @FormUrlEncoded
+    Observable<Info> deletePicture(
+            @Field("id") String id);
+
     @POST("users/pictureCollection.php")
     @FormUrlEncoded
     Observable<List<Picture>> getCollectionsPictures(

@@ -6,8 +6,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -20,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.model.AccountModel;
 import com.jude.album.model.ImageModel;
 import com.jude.album.model.PictureModel;
 import com.jude.album.model.server.ErrorTransform;
@@ -55,6 +60,8 @@ public class PictureFragment extends Fragment {
     FrameLayout container;
 
     InfoViewHolder mInfoViewHolder;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
 
     @Override
@@ -69,12 +76,16 @@ public class PictureFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_picture, container, false);
         ButterKnife.bind(this, view);
+        ((BeamBaseActivity)getActivity()).setSupportActionBar(toolbar);
+        ((BeamBaseActivity)getActivity()).getSupportActionBar().setTitle("");
+        setHasOptionsMenu(true);
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         Glide.with(getContext())
                 .load(mPicture.getSrc())
                 .into(photoview);
@@ -92,8 +103,24 @@ public class PictureFragment extends Fragment {
                 mInfoViewHolder.shirk();
             }
         });
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+               JUtils.Log("id"+item.getItemId());
+                return false;
+            }
+        });
+
+
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.picture_tool, menu);
+        if (!mPicture.getAuthorId().equals(AccountModel.getInstance().getCurrentAccount().getId()))
+            menu.findItem(R.id.delete).setVisible(false);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
 
     public class InfoViewHolder {
 
@@ -154,19 +181,20 @@ public class PictureFragment extends Fragment {
             });
         }
 
-        public void expand(){
-            if (!isShirk)return;
+        public void expand() {
+            if (!isShirk) return;
             mExpandAnimator.start();
             imgExpand.setImageResource(R.mipmap.down);
             isShirk = false;
         }
 
-        public void shirk(){
-            if (isShirk)return;
+        public void shirk() {
+            if (isShirk) return;
             mExpandAnimator.reverse();
             imgExpand.setImageResource(R.mipmap.up);
             isShirk = true;
         }
+
         public void onBindInfoView(Picture picture) {
             tvName.setText(picture.getName());
             tvWatch.setText(picture.getWatchCount() + "");
