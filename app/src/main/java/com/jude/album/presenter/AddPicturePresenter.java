@@ -8,12 +8,16 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.jude.album.domain.entities.Picture;
+import com.jude.album.domain.entities.PictureDescribeResult;
+import com.jude.album.model.ImageModel;
 import com.jude.album.service.UploadService;
 import com.jude.album.ui.AddPictureActivity;
 import com.jude.beam.expansion.data.BeamDataActivityPresenter;
 import com.jude.library.imageprovider.ImageProvider;
 import com.jude.library.imageprovider.OnImageSelectListener;
 import com.jude.utils.JUtils;
+
+import java.io.File;
 
 /**
  * Created by zhuchenxi on 16/6/6.
@@ -50,6 +54,17 @@ public class AddPicturePresenter extends BeamDataActivityPresenter<AddPictureAct
             getData().setHeight(height);
             getData().setWidth(width);
 
+            getView().startDescribe();
+            ImageModel.getInstance().getPictureDescribeResult(new File(uri.getPath()))
+                    .subscribe(pictureDescribeResult -> {
+                        String tags = "";
+                        for (PictureDescribeResult.PictureTag pictureTag : pictureDescribeResult.getTags()) {
+                            tags += pictureTag.getTagName()+",";
+                        }
+                        getData().setTag(tags);
+                        getView().stopDescribe();
+                        refresh();
+                    });
             refresh();
         }
 

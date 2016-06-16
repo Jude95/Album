@@ -1,8 +1,13 @@
 package com.jude.album.model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Base64;
 
+import com.google.gson.Gson;
+import com.jude.album.domain.entities.PictureDescribeResult;
 import com.jude.album.model.server.DaggerServiceModelComponent;
 import com.jude.album.model.server.SchedulerTransform;
 import com.jude.album.model.server.ServiceAPI;
@@ -12,13 +17,19 @@ import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.BufferedSink;
@@ -162,6 +173,91 @@ public class ImageModel extends AbsModel {
         file = new File(parent,"album"+System.currentTimeMillis()+".jpg");
         JUtils.Log("save file:"+file.getPath());
         return file.getPath();
+    }
+
+    public static final String YOUTU = "http://api.youtu.qq.com/youtu/imageapi/imagetag";
+
+    public Observable<PictureDescribeResult> getPictureDescribeResult(File file){
+        return mServiceAPI.getTagToken()
+                .doOnNext(token -> JUtils.Log("token:"+token.getToken()))
+                .flatMap(token -> getYouTuResponse(file,token.getToken()))
+                .doOnNext(s -> JUtils.Log("response:"+s))
+                .map(s -> new Gson().fromJson(s,PictureDescribeResult.class))
+                .compose(new SchedulerTransform<>());
+    }
+
+    private Observable<String> getYouTuResponse(File file,String token){
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                Request request = new Request.Builder()
+                        .url(YOUTU)
+                        .addHeader("Authorization",token)
+                        .post(new RequestBody() {
+                            @Override
+                            public MediaType contentType() {
+                                return MediaType.parse("text/json");
+                            }
+
+                            @Override
+                            public void writeTo(BufferedSink sink) throws IOException {
+                                String imagecode = getImgStr(getSmallBitmap(file.getPath()));
+                                String body;
+                                JSONObject jsonObject = new JSONObject();
+                                try {
+                                    jsonObject.put("app_id","1007268");
+                                    jsonObject.put("image",imagecode);
+                                } catch (JSONException e) {
+                                    subscriber.onError(e);
+                                }
+                                body = jsonObject.toString();
+                                JUtils.Log("Request:"+body);
+                                sink.writeUtf8(body);
+                            }
+                        })
+                        .build();
+                Response response = null;
+                try {
+                    response = mOkHttpClient.newCall(request).execute();
+                    ResponseBody body = response.body();
+                    subscriber.onNext(body.string());
+                    subscriber.onCompleted();
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                }
+
+            }
+        });
+    }
+
+    // 根据路径获得图片并压缩，返回bitmap用于显示
+    public static Bitmap getSmallBitmap(String filePath) {//图片所在SD卡的路径
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, options);
+        options.inSampleSize = calculateInSampleSize(options, 300, 300);//自定义一个宽和高
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(filePath, options);
+    }
+
+    //计算图片的缩放值
+    public static int calculateInSampleSize(BitmapFactory.Options options,int reqWidth, int reqHeight) {
+        final int height = options.outHeight;//获取图片的高
+        final int width = options.outWidth;//获取图片的框
+        int inSampleSize = 4;
+        if (height > reqHeight || width > reqWidth) {
+            final int heightRatio = Math.round((float) height/ (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+        return inSampleSize;//求出缩放值
+    }
+
+    public static String getImgStr(Bitmap bit){
+        ByteArrayOutputStream bos=new ByteArrayOutputStream();
+        bit.compress(Bitmap.CompressFormat.JPEG, 40, bos);//参数100表示不压缩
+        byte[] bytes=bos.toByteArray();
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
     }
 
 }

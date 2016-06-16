@@ -152,5 +152,9 @@ public interface ServiceAPI {
     @GET("config/checkUpdate.php")
     Observable<UpdateInfo> getUpdateInfo();
 
+    @GET("TencentYoutuyun/youtuSign.php")
+    Observable<Token> getTagToken();
+
+
 }
 

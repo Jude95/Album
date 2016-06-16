@@ -260,9 +260,12 @@ public class PictureFragment extends Fragment {
                                 .subscribe(info -> {//修改UI
                                     if (picture.isCollected()) {
                                         collection.setText("已收藏");
+                                        picture.setCollectionCount(picture.getCollectionCount()+1);
                                     } else {
                                         collection.setText("收藏作品");
+                                        picture.setCollectionCount(picture.getCollectionCount()-1);
                                     }
+                                    tvCollect.setText(picture.getCollectionCount() + "");
                                 });
 
                     });

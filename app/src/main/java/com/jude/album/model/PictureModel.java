@@ -3,6 +3,7 @@ package com.jude.album.model;
 import android.content.Context;
 
 import com.jude.album.domain.body.Info;
+import com.jude.album.domain.body.Token;
 import com.jude.album.domain.entities.Album;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.model.server.DaggerServiceModelComponent;
@@ -82,6 +83,10 @@ public class PictureModel extends AbsModel {
     public Observable<Info> uploadPicture(String src, String name, String intro, int height, int width, String tag){
         return mServiceAPI.uploadPicture(src, name, intro, height, width, tag)
                 .compose(new SchedulerTransform<>());
+    }
+
+    public Observable<Token> getYouTuToken(){
+        return mServiceAPI.getTagToken().compose(new SchedulerTransform<>());
     }
 
     static final Picture[] VIRTUAL_PICTURE = {

@@ -10,6 +10,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.jakewharton.rxbinding.view.RxView;
@@ -44,6 +45,8 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
     ImageView imgPicture;
     @BindView(R.id.et_tag)
     AppCompatEditText etTag;
+    @BindView(R.id.tv_tag_hint)
+    TextView tvTagHint;
 
     private boolean mAutoChangeText = false;
 
@@ -75,7 +78,7 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
         });
         RxTextView.textChanges(etTag)
                 .filter(charSequence -> {
-                    if (mAutoChangeText){
+                    if (mAutoChangeText) {
                         mAutoChangeText = false;
                         return false;
                     }
@@ -83,17 +86,17 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
                 })
                 .subscribe(charSequence -> {
                     String text = charSequence.toString();
-                    text = text.replace("，",",");
+                    text = text.replace("，", ",");
                     SpannableString msp = new SpannableString(text);
                     int start = 0;
                     int end = 0;
-                    while ((end = text.indexOf(',',start))!=-1){
+                    while ((end = text.indexOf(',', start)) != -1) {
                         //设置字体背景色
-                        msp.setSpan(new RoundedBackgroundSpan(getResources().getColor(R.color.blue),Color.WHITE,etTag.getTextSize()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        start = end+1;
+                        msp.setSpan(new RoundedBackgroundSpan(getResources().getColor(R.color.blue), Color.WHITE, etTag.getTextSize()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        start = end + 1;
                     }
-                    if (start!=text.length()&&text.length()>0){
-                        msp.setSpan(new RoundedBackgroundSpan(getResources().getColor(R.color.blue),Color.WHITE,etTag.getTextSize()), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    if (start != text.length() && text.length() > 0) {
+                        msp.setSpan(new RoundedBackgroundSpan(getResources().getColor(R.color.blue), Color.WHITE, etTag.getTextSize()), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                     mAutoChangeText = true;
                     etTag.setText(msp);
@@ -108,7 +111,14 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
                 .load(data.getSrc())
                 .error(R.mipmap.picture_add)
                 .into(imgPicture);
+        etTag.setText(data.getTag() + etTag.getText());
     }
 
+    public void startDescribe(){
+        tvTagHint.setText("正在解析图片_");
+    }
 
+    public void stopDescribe(){
+        tvTagHint.setText("输入,分割标签");
+    }
 }

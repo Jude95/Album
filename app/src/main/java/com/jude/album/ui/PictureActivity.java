@@ -49,6 +49,7 @@ public class PictureActivity extends BeamBaseActivity {
         Picture picture =  getIntent().getParcelableExtra(KEY_PICTURE);
         if (picture!=null) mPictures.add(picture);
         int index = getIntent().getIntExtra(KEY_INDEX,0);
+        updateWatchCount(index);
 
         mAdapter.setPictures(mPictures);
         mViewPager.setCurrentItem(index);
@@ -60,9 +61,7 @@ public class PictureActivity extends BeamBaseActivity {
 
             @Override
             public void onPageSelected(int position) {
-                PictureModel.getInstance().updateWatchCount(mPictures.get(position).getId())
-                        .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.NONE))
-                        .subscribe();
+                updateWatchCount(position);
             }
 
             @Override
@@ -70,6 +69,13 @@ public class PictureActivity extends BeamBaseActivity {
 
             }
         });
+    }
+
+    private void updateWatchCount(int position){
+        mPictures.get(position).setWatchCount(mPictures.get(position).getWatchCount()+1);
+        PictureModel.getInstance().updateWatchCount(mPictures.get(position).getId())
+                .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.NONE))
+                .subscribe();
     }
 
     @Override
