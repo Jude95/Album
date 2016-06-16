@@ -1,17 +1,16 @@
 package com.jude.album.ui;
 
 import android.animation.ValueAnimator;
+import android.app.WallpaperManager;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -20,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.jakewharton.rxbinding.view.RxView;
 import com.jude.album.R;
@@ -36,6 +36,9 @@ import com.jude.utils.JTimeTransform;
 import com.jude.utils.JUtils;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -76,9 +79,7 @@ public class PictureFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_picture, container, false);
         ButterKnife.bind(this, view);
-        ((BeamBaseActivity)getActivity()).setSupportActionBar(toolbar);
-        ((BeamBaseActivity)getActivity()).getSupportActionBar().setTitle("");
-        setHasOptionsMenu(true);
+
         return view;
     }
 
@@ -103,23 +104,46 @@ public class PictureFragment extends Fragment {
                 mInfoViewHolder.shirk();
             }
         });
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-               JUtils.Log("id"+item.getItemId());
+        if (AccountModel.getInstance().hasLogin()&&mPicture.getAuthorId().equals(AccountModel.getInstance().getCurrentAccount().getId()))
+            toolbar.getMenu().add("删除").setOnMenuItemClickListener(item -> {
+                new MaterialDialog.Builder(getContext())
+                        .title("删除作品")
+                        .content("确定删除吗？")
+                        .positiveText("确定")
+                        .negativeText("取消")
+                        .onPositive((dialog, which) -> PictureModel.getInstance().deletePicture(mPicture.getId())
+                                .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.AUTH_TOAST))
+                                .subscribe(i -> {
+                                    getActivity().finish();
+                                    JUtils.Toast("已删除,请手动刷新");
+                                }))
+                        .show();
                 return false;
-            }
+            });
+        toolbar.getMenu().add("保存").setOnMenuItemClickListener(item -> {
+            ImageModel.getInstance().downloadIntoFile(mPicture.getSrc(),null)
+                    .compose(new ProgressDialogTransform<>((BeamBaseActivity) getActivity(),"下载中"))
+                    .doOnNext(s1 -> getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(s1)))))
+                    .subscribe(s -> JUtils.Toast("下载成功"));
+            return false;
+        });
+        toolbar.getMenu().add("设为壁纸").setOnMenuItemClickListener(item -> {
+
+            ImageModel.getInstance().downloadIntoFile(mPicture.getSrc(),null)
+                    .compose(new ProgressDialogTransform<>((BeamBaseActivity) getActivity(),"下载中"))
+                    .doOnNext(s1 -> getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(s1)))))
+                    .subscribe(s -> {
+                        WallpaperManager wallpaperManager = WallpaperManager.getInstance(getContext());
+                        try {
+                            wallpaperManager.setStream(new FileInputStream(new File(s)));
+                            JUtils.Toast("设置成功");
+                        } catch (IOException e) {
+                            JUtils.Toast("下载错误");
+                        }
+                    });
+            return false;
         });
 
-
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.picture_tool, menu);
-        if (!mPicture.getAuthorId().equals(AccountModel.getInstance().getCurrentAccount().getId()))
-            menu.findItem(R.id.delete).setVisible(false);
-        super.onCreateOptionsMenu(menu,inflater);
     }
 
     public class InfoViewHolder {

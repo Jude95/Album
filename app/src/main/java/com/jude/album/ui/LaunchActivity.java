@@ -15,7 +15,7 @@ public class LaunchActivity extends BeamBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        RxPermissions.getInstance(this).request(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe(b -> {
                     if (b){
                         startActivity(new Intent(this,MainActivity.class));
@@ -25,6 +25,7 @@ public class LaunchActivity extends BeamBaseActivity {
                         finish();
                     }
                 });
+
 //        if (AccountModel.getInstance().hasLogin())
 //            startActivity(new Intent(this,MainActivity.class));
 //        else

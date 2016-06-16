@@ -1,6 +1,7 @@
 package com.jude.album.model;
 
 import android.content.Context;
+import android.os.Environment;
 
 import com.jude.album.model.server.DaggerServiceModelComponent;
 import com.jude.album.model.server.SchedulerTransform;
@@ -12,10 +13,17 @@ import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -107,6 +115,53 @@ public class ImageModel extends AbsModel {
                 }))
                 .doOnNext(s -> JUtils.Log("已上传：" + s))
                 .compose(new SchedulerTransform<>());
+    }
+
+    public static final int DOWNLOAD_CHUNK_SIZE = 2048; //Same as Okio Segment.SIZE
+
+    public Observable<String> downloadIntoFile(String uri,UpProgressHandler handler){
+        return  Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                try {
+                    Request request = new Request.Builder().url(uri).build();
+
+                    Response response = mOkHttpClient.newCall(request).execute();
+                    ResponseBody body = response.body();
+                    long contentLength = body.contentLength();
+                    BufferedSource source = body.source();
+
+                    File file = new File(getDownloadPathFrom(uri));
+                    BufferedSink sink = Okio.buffer(Okio.sink(file));
+
+                    long bytesRead = 0;
+                    while (source.read(sink.buffer(), DOWNLOAD_CHUNK_SIZE) != -1) {
+                        bytesRead += DOWNLOAD_CHUNK_SIZE;
+                        double progress = ((bytesRead * 100) / contentLength);
+                        if (handler!=null)handler.progress("",progress);
+                    }
+                    sink.writeAll(source);
+                    sink.close();
+                    subscriber.onNext(file.getPath());
+                    subscriber.onCompleted();
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                }
+            }
+        })
+                .compose(new SchedulerTransform<>());
+
+    }
+
+    private String getDownloadPathFrom(String uri){
+        File file;
+        File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        if (!parent.exists()){
+            parent.mkdirs();
+        }
+        file = new File(parent,"album"+System.currentTimeMillis()+".jpg");
+        JUtils.Log("save file:"+file.getPath());
+        return file.getPath();
     }
 
 }

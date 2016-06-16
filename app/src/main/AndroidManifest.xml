@@ -3,6 +3,8 @@
     package="com.jude.album">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.SET_WALLPAPER"/>
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS"/>
 
     <application
         android:name=".app.APP"

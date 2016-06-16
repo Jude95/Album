@@ -26,7 +26,7 @@ public class UpdateService extends Service {
 	private NotificationManager manger ;
 	private NotificationCompat.Builder builder;
 
-	private int notification_id = 1003;
+	private int notification_id;
 
 	private DownloadAsyncTask task;
 	RemoteViews contentView;
@@ -55,6 +55,7 @@ public class UpdateService extends Service {
 
 		if(url!=null&& JUtils.isNetWorkAvilable()&&task==null){
 			JUtils.Log("onStartCommand url:"+url+"  filepath:"+filename+"  filename:"+filename);
+            notification_id = startId;
 			updateUpload(startId,0);
 			task = new DownloadAsyncTask();
 			task.execute(url,filepath,filename);
