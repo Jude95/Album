@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import com.jude.album.domain.entities.Picture;
 import com.jude.album.domain.entities.PictureDescribeResult;
 import com.jude.album.model.ImageModel;
+import com.jude.album.model.server.ErrorTransform;
 import com.jude.album.service.UploadService;
 import com.jude.album.ui.AddPictureActivity;
 import com.jude.beam.expansion.data.BeamDataActivityPresenter;
@@ -56,6 +57,7 @@ public class AddPicturePresenter extends BeamDataActivityPresenter<AddPictureAct
 
             getView().startDescribe();
             ImageModel.getInstance().getPictureDescribeResult(new File(uri.getPath()))
+                    .compose(new ErrorTransform<>(ErrorTransform.ServerErrorHandler.NONE))
                     .subscribe(pictureDescribeResult -> {
                         String tags = "";
                         for (PictureDescribeResult.PictureTag pictureTag : pictureDescribeResult.getTags()) {
