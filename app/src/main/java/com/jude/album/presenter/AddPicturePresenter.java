@@ -83,7 +83,7 @@ public class AddPicturePresenter extends BeamDataActivityPresenter<AddPictureAct
         Intent i = new Intent(getView(), UploadService.class);
         i.putExtra(UploadService.KEY_PICTURE, (Parcelable) getData());
         getView().startService(i);
-        JUtils.Toast("正在上传");
+        JUtils.Toast("正在后台上传……");
         getView().finish();
     }
 
