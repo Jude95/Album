@@ -111,7 +111,7 @@ public class AddPictureActivity extends BeamDataActivity<AddPicturePresenter, Pi
                 .load(data.getSrc())
                 .error(R.mipmap.picture_add)
                 .into(imgPicture);
-        etTag.setText(data.getTag() + etTag.getText());
+        etTag.setText(data.getTag());
     }
 
     public void startDescribe(){
