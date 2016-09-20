@@ -25,10 +25,5 @@ public class LaunchActivity extends BeamBaseActivity {
                         finish();
                     }
                 });
-
-//        if (AccountModel.getInstance().hasLogin())
-//            startActivity(new Intent(this,MainActivity.class));
-//        else
-//            startActivity(new Intent(this,LoginActivity.class));
     }
 }
